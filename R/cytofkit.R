@@ -129,7 +129,7 @@ cytof_tsne_densvm <- function(rawFCSdir = getwd(), fcsFile = NULL,
             stop("no parameter selected!")
     if(!(mergeMethod %in% c("ceil", "all", "min", "fixed")))
             stop("wrong mergeMethod selected!")  
-    if (!(transformationMethod %in% c("auto", "sign_auto", "fixed")))
+    if (!(transformationMethod %in% c("auto", "sign_auto", "fixed", "arcsin")))
             stop("wrong transformationMethod selected!")
     if(!(dimReductionMethod %in% c("tsne", "pca", "isomap")))
             stop("wrong dimReductionMethod selected!")

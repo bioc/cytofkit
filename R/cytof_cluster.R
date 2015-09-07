@@ -93,14 +93,11 @@ assign_pop <- function(opt_densityIMG, ydata, xdata) {
     for (i in 1:p_num) {
         # Find closest subpopulation and determine appropriate radius
         # of 2-d space to draw sample from
-        dists <- (kronecker(matrix(1, p_num - 1, 1), matrix(p[i, 
-            ], 1, 2)) - p[-i, ])^2
+        dists <- (base::kronecker(matrix(1, p_num - 1, 1), matrix(p[i, ], 1, 2)) - p[-i, ])^2
         dists <- matrix(apply(dists, 1, sum), p_num - 1, 1)
         min_dist <- sqrt(min(dists))
-        dist2 <- ydata - kronecker(matrix(1, dim(ydata)[1], 1), 
-            matrix(p[i, ], 1, 2))
-        dist2 <- matrix(apply(dist2^2, 1, sum), dim(ydata)[1], 
-            1)
+        dist2 <- ydata - base::kronecker(matrix(1, dim(ydata)[1], 1), matrix(p[i, ], 1, 2))
+        dist2 <- matrix(apply(dist2^2, 1, sum), dim(ydata)[1], 1)
         ind <- which(dist2 < (min_dist/2)^2)
         ind_vector <- c(ind_vector, ind)
         cluster_vector <- c(cluster_vector, rep(i, length(ind)))
@@ -217,13 +214,13 @@ kernalDensity <- function(ydata, width, height, sig_tol) {
     for (i in 0:(height - 1)) {
         y2_range[i + 1] <- limits[3] + i * deltay + deltay/2
     }
-    y2_range <- kronecker(matrix(1, 1, dim(dmap)[2]), y2_range)
+    y2_range <- base::kronecker(matrix(1, 1, dim(dmap)[2]), y2_range)
     
     y1_range <- matrix(0, 1, width)
     for (i in 0:(width - 1)) {
         y1_range[i + 1] <- limits[1] + i * deltax + deltax/2
     }
-    y1_range <- kronecker(matrix(1, dim(dmap)[1], 1), y1_range)
+    y1_range <- base::kronecker(matrix(1, dim(dmap)[1], 1), y1_range)
     
     return(list(z = dmap, x = y1_range, y = y2_range))
 } 

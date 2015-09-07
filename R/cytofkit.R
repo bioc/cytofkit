@@ -150,7 +150,6 @@ cytof_tsne_densvm <- function(rawFCSdir = getwd(), fcsFile = NULL,
         transformed <- NULL
     }
     
-    
     ## cluster
     cluster_output <- NULL
     if (ifCluster){

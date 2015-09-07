@@ -28,7 +28,7 @@ cytof_dimReduction <- function(data, method = "tsne", distMethod = "euclidean", 
         colnames(res$x) <- paste("PCA_dim", c(1:ncol(res$x)), 
             sep = "")
         rownames(res$x) <- row.names(data)
-        return(res$x)
+        return(res$x[ ,c(1,2)])
     }
     if (method == "isomap") {
         if (is.null(isomap_ndim)) {
@@ -40,7 +40,7 @@ cytof_dimReduction <- function(data, method = "tsne", distMethod = "euclidean", 
         colnames(ord$points) <- paste("ISOMAP_dim", c(1:ncol(ord$points)), 
             sep = "")
         rownames(ord$points) <- row.names(data)
-        return(ord$points)
+        return(ord$points[ ,c(1,2)])
     }
     if (method == "tsne") {
         tsne_out <- Rtsne(as.matrix(data), initial_dims = dim(as.matrix(data))[2], 
@@ -51,6 +51,6 @@ cytof_dimReduction <- function(data, method = "tsne", distMethod = "euclidean", 
         colnames(mapped) <- paste("tsne", c(1:ncol(mapped)), 
             sep = "_")
         rownames(mapped) <- row.names(data)
-        return(mapped)
+        return(mapped[ ,c(1,2)])
     }
 } 

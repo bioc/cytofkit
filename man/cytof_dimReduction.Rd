@@ -2,29 +2,32 @@
 % Please edit documentation in R/cytof_dimensionReduction.R
 \name{cytof_dimReduction}
 \alias{cytof_dimReduction}
-\title{Dimension reduction of CyTof expression data}
+\title{Dimension reduction of cytof expression data}
 \usage{
 cytof_dimReduction(data, method = "tsne", distMethod = "euclidean",
-  isomap_k = 5, isomap_ndim = NULL, isomapFragmentOK = TRUE)
+  out_dim = 2, isomap_k = 5, isomap_ndim = NULL,
+  isomapFragmentOK = TRUE)
 }
 \arguments{
-\item{data}{An expression data matrix}
+\item{data}{An expression data matrix.}
 
-\item{method}{Method chosed for dimensition reduction, must be one of \code{isomap}, \code{pca} or \code{tsne}}
+\item{method}{Method chosed for dimensition reduction, must be one of \code{isomap}, \code{pca} or \code{tsne}.}
 
-\item{distMethod}{Method for distance calcualtion}
+\item{distMethod}{Method for distance calcualtion.}
 
-\item{isomap_k}{Number of shortest dissimilarities retained for a point, parameter for \code{isomap} method}
+\item{out_dim}{The dimensionality of the output.}
 
-\item{isomap_ndim}{Number of axes in metric scaling, parameter for \code{isomap} method}
+\item{isomap_k}{Number of shortest dissimilarities retained for a point, parameter for \code{isomap} method.}
 
-\item{isomapFragmentOK}{What to do if dissimilarity matrix is fragmented, parameter for \code{isomap} method}
+\item{isomap_ndim}{Number of axes in metric scaling, parameter for \code{isomap} method.}
+
+\item{isomapFragmentOK}{What to do if dissimilarity matrix is fragmented, parameter for \code{isomap} method.}
 }
 \value{
-a matrix of the dimension reducted data, with colnames and rownames(if have, same as the input)
+a matrix of the dimension reducted data, with colnames and rownames(if have, same as the input).
 }
 \description{
-Apply dimension reduction on the CyTof expression data,
+Apply dimension reduction on the cytof expression data,
 with method \code{isomap}, \code{pca}, or \code{tsne}.
 }
 \examples{

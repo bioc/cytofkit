@@ -1,2 +1,12 @@
 FIRST VERSION OF SIDAP,
 sidap be renamed to cytofkit
+
+
+30/12/2015 cytofkit 1.2.1 a new version with great updates:
+  - redesigned pipeline with general frame
+  - new clustering methods ClusterX and Rphenograph
+  - add progression estimation using ISOMAP
+  - a lot of function names were changed to be more intuitive
+  - updated GUI 
+  - added a shiny APP to access the results interactively
+  - updated vignettes 

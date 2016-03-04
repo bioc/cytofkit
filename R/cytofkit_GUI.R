@@ -484,19 +484,19 @@ cytofkit_GUI <- function() {
         
         ## pass the parameters and run the cytof_tsne_densvm function
         cytofkit(fcsFiles = inputs[["fcsFiles"]], 
-                 markers = inputs[["markers"]], 
+                 markers = inputs[["markers"]],
+                 projectName = inputs[["projectName"]], 
                  mergeMethod = inputs[["mergeMethod"]], 
                  fixedNum = inputs[["fixedNum"]], 
-                 comp = FALSE, verbose = FALSE, transformMethod = "auto_lgcl", 
-                 scaleTo = NULL, q = 0.05, 
+                 transformMethod = "auto_lgcl", 
                  dimReductionMethod = inputs[["dimReductionMethod"]], 
                  clusterMethods = inputs[["clusterMethods"]], 
                  visualizationMethods = inputs[["visualizationMethods"]], 
                  progressionMethod = inputs[["progressionMethod"]], 
                  uniformClusterSize = 500,
-                 projectName = inputs[["projectName"]], 
                  resultDir = inputs[["resultDir"]], 
-                 saveResults = TRUE, saveObject = TRUE, saveToFCS = TRUE)
+                 saveResults = TRUE, saveObject = TRUE, saveToFCS = TRUE,
+                 scaleTo = NULL, q = 0.05)
         
         okMessage <- paste0("Analysis Done, results are saved under ",
                             inputs[["resultDir"]])

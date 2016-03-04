@@ -71,15 +71,20 @@ NULL
 
 #' cytofkit: an integrated analysis pipeline for mass cytometry data
 #' 
-#' \code{cytofkit} provides a workflow for one or multiple cytof data analysis, 
+#' A user friendly GUI is provided for easy usage of cytofkit, \code{\link{cytofkit_GUI}}.
+#' 
+#' \code{cytofkit} provides a workflow for one or multiple CyTOF data analysis, 
 #' including data preprocess with merging methods of multiple fcs file, expression data transformation, 
 #' dimension reduction with PCA, isomap or tsne(default), clustering methods(densVM, ClusterX, Rphenograph) 
 #' for subpopulation detection, and estimation of cellular progression with isomap. The analysis results 
 #' can be visualized with scatter plot, heatmap plot or progression plot. Moreover theses results can be saved back to 
-#' FCS files. By default the results will be automatically saved for further annoration.  
+#' FCS files. By default the results will be automatically saved for further annotation. An interactive web application is
+#' provided for interactive exploration of the analysis results, \code{cytofkitShinyAPP}.
+#' 
 #' 
 #' @param fcsFiles it can be either the name of the path where stores your FCS files or a vector of FCS file names. 
 #' @param markers it can be either a text file that specifies the makers to be used for analysis or a vector of the marker names.
+#' @param projectName a prefix that will be added to the names of result files.
 #' @param mergeMethod when multiple fcs files are selected, cells can be combined using 
 #' one of the four different methods including \code{ceil}, \code{all}, \code{min}, \code{fixed}. 
 #' The default option is \code{ceil}, up to a fixed number (specified by \code{fixedNum}) of cells are sampled 
@@ -89,21 +94,19 @@ NULL
 #' \code{fixed}: a fixed num (specified by fixedNum) of cells are sampled (with replacement when the total number of cell is less than 
 #' fixedNum) from each fcs file and combined for analysis.
 #' @param fixedNum up to fixedNum of cells from each fcs file are used for analysis.
-#' @param comp Boolean value to decide if do compensation. This will be applied to flow cytometry data.
-#' @param verbose Boolean value, if detailed massaged will be printed.
+#' @param ifCompensation Boolean value to decide if do compensation. This will be applied to flow cytometry data.
 #' @param transformMethod dat transformation method, either \code{auto_lgcl}, \code{fixed_lgcl}, \code{arcsin} or \code{biexp}.
-#' @param scaleTo scale the expression values to the same scale, default is NULL, should be a vector of two numbers if scale.
-#' @param q quantile of negative values removed for auto w estimation in logicle transformation, default is 0.05.
 #' @param dimReductionMethod the method used for dimensionality reduction, including \code{tsne}, \code{pca} and \code{isomap}.
 #' @param clusterMethods the clustering method(s) used for subpopulation detection, including \code{densVM}, \code{ClusterX} and \code{Rphenograph}. Multiple selection are accepted.
 #' @param visualizationMethods the method(s) used for visualize the cluster data, including \code{tsne}, \code{pca} and \code{isomap}. Multiple selection are accepted.
 #' @param progressionMethod use the first ordination score of \code{isomap} to estimated the preogression order of cells, choose \code{NULL} to ignore.
 #' @param uniformClusterSize the uniform size of each cluster.
-#' @param projectName a prefix that will be added to the names of result files.
 #' @param resultDir the directory where result files will be generated.
 #' @param saveResults if save the results, and the post-processing results including scatter plot, heatmap, and statistical results.
 #' @param saveObject save the resutls into RData objects for loading back to R for further analysis
 #' @param saveToFCS save the results back to the FCS files, new FCS files will be generated.
+#' @param scaleTo scale the expression values to the same scale after transformation, default is NULL, should be a vector of two numbers if scale.
+#' @param q quantile of negative values removed for auto w estimation in logicle transformation, default is 0.05.
 #' @param ... more arguments contral the logicle transformation
 #' 
 #' @return a list containing \code{expressionData}, \code{dimReductionMethod}, \code{visualizationMethods}, \code{dimReducedRes}, \code{clusterRes} and \code{progressionRes}. If choose 'saveResults = TRUE', results will be saved into files under \code{resultDir}
@@ -118,14 +121,21 @@ NULL
 #' parameters <- list.files(dir, pattern='.txt$', full=TRUE)
 #' ## remove the hash symbol to run the following command
 #' #cytofkit(fcsFile = file, markers = parameters, projectName = 'test')   
-cytofkit <- function(fcsFiles = getwd(), markers = NULL, mergeMethod = "ceil", fixedNum = 10000, 
-                     comp = FALSE, verbose = FALSE, transformMethod = "auto_lgcl", 
-                     scaleTo = NULL, q = 0.05, 
-                     dimReductionMethod = "tsne", clusterMethods = "ClusterX", 
+cytofkit <- function(fcsFiles = getwd(), markers = NULL, 
+                     projectName = "cytofkit", 
+                     mergeMethod = "ceil", 
+                     fixedNum = 10000, 
+                     ifCompensation = FALSE, 
+                     transformMethod = "auto_lgcl", 
+                     dimReductionMethod = "tsne", 
+                     clusterMethods = "ClusterX", 
                      visualizationMethods = "tsne", 
-                     progressionMethod = NULL, uniformClusterSize = 500,
-                     projectName = "cytofkit", resultDir = getwd(), 
-                     saveResults = TRUE, saveObject = TRUE, saveToFCS = TRUE, ...) {
+                     progressionMethod = NULL, 
+                     uniformClusterSize = 500,
+                     resultDir = getwd(), 
+                     saveResults = TRUE, saveObject = TRUE, saveToFCS = TRUE, 
+                     scaleTo = NULL, q = 0.05, ...) {
+    
     
     ## arguments checking
     if (is.null(fcsFiles)) {
@@ -213,7 +223,7 @@ cytofkit <- function(fcsFiles = getwd(), markers = NULL, mergeMethod = "ceil", f
     
     ## get marker-filtered, transformed, combined exprs data
     message("Extract expression data...")
-    exprs_data <- cytof_exprsMerge(fcsFiles, comp = comp, verbose = verbose, 
+    exprs_data <- cytof_exprsMerge(fcsFiles, comp = ifCompensation, verbose = FALSE, 
         markers = markers, transformMethod = transformMethod, scaleTo = scaleTo, 
         q = q, mergeMethod = mergeMethod, fixedNum = fixedNum)
     cat("  ", nrow(exprs_data), " x ", ncol(exprs_data), " data was extracted!\n")
@@ -260,6 +270,7 @@ cytofkit <- function(fcsFiles = getwd(), markers = NULL, mergeMethod = "ceil", f
                              clusterRes = cluster_res, 
                              progressionRes = progression_res)
      
+    
     ## save the results
     message("Analysis DONE, saving the reuslts...") 
     if(saveObject){
@@ -280,7 +291,12 @@ cytofkit <- function(fcsFiles = getwd(), markers = NULL, mergeMethod = "ceil", f
     }
 }
 
+
+
+
 #' A Shiny app to interactively visualize the analysis results 
+#' 
+#' Load the RData object saved by cytofkit, explore the analysis results with interactive control
 #'
 #' @import shiny
 #' @export
@@ -289,6 +305,7 @@ cytofkit <- function(fcsFiles = getwd(), markers = NULL, mergeMethod = "ceil", f
 cytofkitShinyAPP = function() {
     shiny::runApp(system.file('shiny', package = 'cytofkit'))
 }
+
 
 
 #' check the package update news

@@ -23,7 +23,8 @@ cytofkit_GUI <- function() {
     cur_dir <- getwd()
     mergeMethods <- c("all", "min", "ceil", "fixed")
     vizMethods <- c("pca", "isomap", "tsne", "NULL")
-    clusterMethods <- c("densVM", "ClusterX", "Rphenograph", "NULL")
+    #clusterMethods <- c("densVM", "ClusterX", "Rphenograph", "NULL")
+    clusterMethods <- c("densVM", "Rphenograph", "NULL")
     
     rawFCSdir <- tclVar(cur_dir)
     fcsFile <- tclVar("")

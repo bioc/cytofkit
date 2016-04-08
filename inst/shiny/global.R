@@ -8,9 +8,10 @@ library(VGAM)
 
 
 visuaPlot <- function(obj, xlab, ylab, zlab, pointSize=1, 
-                      addLabel=TRUE, labelSize=1, selectSamples){
+                      addLabel=TRUE, labelSize=1, selectSamples,
+                      removeOutlier = TRUE){
     
-    data <- cbind(obj$expressionData, do.call(cbind, obj$dimReducedRes))
+    data <- cbind(obj$allExpressionData, do.call(cbind, obj$dimReducedRes))
     data <- as.data.frame(data)
     clusterMethods <- names(obj$clusterRes)
     for(cname in clusterMethods){
@@ -58,6 +59,8 @@ visuaPlot <- function(obj, xlab, ylab, zlab, pointSize=1,
         ## ggplot aes cannot recognize marker names with symbol <>
         title <- zlab
         data <- data[,c(xlab, ylab, zlab)]
+        if(removeOutlier)
+            data[,zlab] <- remove_outliers(data[,zlab])
         zlab <- "Expression"
         colnames(data) <- c(xlab, ylab, zlab)
         gp <- ggplot(data, aes_string(x = xlab, y = ylab, colour = zlab)) + 
@@ -73,7 +76,7 @@ visuaPlot <- function(obj, xlab, ylab, zlab, pointSize=1,
 
 
 heatMap <- function(data, clusterMethod = "DensVM", type = "mean", selectSamples,
-                    cex_row_label = 1, cex_col_label = 1) {
+                    cex_row_label = 1, cex_col_label = 1, scaleMethod = "none") {
     exprs <- data$expressionData
     samples <- sub("_[0-9]*$", "", row.names(exprs))
     exprs <- exprs[samples %in% selectSamples, ]
@@ -111,7 +114,7 @@ heatMap <- function(data, clusterMethod = "DensVM", type = "mean", selectSamples
 
     cluster_stat <- as.matrix(cluster_stat)
     heatmap.2(cluster_stat, col = bluered, trace = "none", 
-              symbreaks = FALSE, scale = "none", 
+              symbreaks = FALSE, scale = scaleMethod, 
               margins = c(8, 8),
               cexRow = cex_row_label, 
               cexCol = cex_col_label, 
@@ -199,4 +202,14 @@ progressionPlot <- function(data, orderCol="isomap_1", clusterCol = "cluster",
     }else{
         return(NULL)
     }
+}
+
+
+remove_outliers <- function(x, na.rm = TRUE, ...) {
+    qnt <- quantile(x, probs=c(.25, .75), na.rm = na.rm, ...)
+    H <- 1.5 * IQR(x, na.rm = na.rm)
+    y <- x
+    y[x < (qnt[1] - H)] <- qnt[1] - H
+    y[x > (qnt[2] + H)] <- qnt[2] + H
+    y
 }

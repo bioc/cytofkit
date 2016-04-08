@@ -66,10 +66,15 @@ shinyUI(fluidPage(
                                    column(4, 
                                           uiOutput("cMethod_choose")
                                    ),
-                                   column(4,
+                                   column(2,
                                           selectInput('heatmapMethod', strong('Heatmap Type:'), 
                                                       choices = c("mean", "median", "percentage"), 
                                                       selected = "mean", width = "100%")
+                                   ),
+                                   column(2,
+                                          selectInput('scaleMethod', strong('Scale Data:'), 
+                                                      choices = c("none", "row", "column"), 
+                                                      selected = "none", width = "100%")
                                    ),
                                    column(2,
                                           numericInput("rLabelSize", "Row Label Size:", value = 1, step = 0.5)

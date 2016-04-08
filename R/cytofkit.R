@@ -152,7 +152,6 @@ cytofkit <- function(fcsFiles = getwd(), markers = NULL,
         }else{
             rawFCSdir <- dirname(fcsFiles[1])  
         }
-        
     }
     
     if (is.null(fcsFiles) || length(fcsFiles) < 1) {
@@ -202,6 +201,7 @@ cytofkit <- function(fcsFiles = getwd(), markers = NULL,
     if (!is.null(uniformClusterSize) && !(is.numeric(uniformClusterSize))) 
         stop("uniformClusterSize must be a numeric number!")
     
+    
     ## print arguments for user info
     message("Input arguments:")
     cat("* Input FCS files for analysis:\n ")
@@ -221,12 +221,19 @@ cytofkit <- function(fcsFiles = getwd(), markers = NULL,
     cat("* Subset progression analysis method: ")
     cat(progressionMethod, "\n\n")
     
+    
     ## get marker-filtered, transformed, combined exprs data
     message("Extract expression data...")
-    exprs_data <- cytof_exprsMerge(fcsFiles, comp = ifCompensation, verbose = FALSE, 
-        markers = markers, transformMethod = transformMethod, scaleTo = scaleTo, 
+    ## match_markers to extract expression of all markers(saved for visualization in shiny web app)
+    all_marker_names <- match_markers(fcsFiles[1])
+    exprs_data_all <- cytof_exprsMerge(fcsFiles, comp = ifCompensation, verbose = FALSE, 
+        markers = all_marker_names, transformMethod = transformMethod, scaleTo = scaleTo, 
         q = q, mergeMethod = mergeMethod, fixedNum = fixedNum)
+    
+    marker_id <- match_markers(fcsFiles[1], markers)
+    exprs_data <- exprs_data_all[ ,marker_id]
     cat("  ", nrow(exprs_data), " x ", ncol(exprs_data), " data was extracted!\n")
+    
     
     ## dimension reduced data, a list
     message("Dimension reduction...")
@@ -234,6 +241,7 @@ cytofkit <- function(fcsFiles = getwd(), markers = NULL,
     allDimReducedList <- lapply(alldimReductionMethods, 
                                 cytof_dimReduction, data = exprs_data)
     names(allDimReducedList) <- alldimReductionMethods
+    
     
     ## cluster results, a list
     message("Run clustering...")
@@ -244,10 +252,11 @@ cytofkit <- function(fcsFiles = getwd(), markers = NULL,
                           xdata = exprs_data)
     names(cluster_res) <- clusterMethods
     
+    
     ## progression analysis results, a list  
-    message("Progression analysis...")   
     ## NOTE, currently only the first cluster method resutls 
     ## are used for preogression visualization(by default: cluster_res[[1]])
+    message("Progression analysis...")   
     if(!(is.null(uniformClusterSize)) && !is.null(progressionMethod) && 
        progressionMethod %in% alldimReductionMethods){
            progression_res <- list(sampleData = exprs_data, 
@@ -262,13 +271,15 @@ cytofkit <- function(fcsFiles = getwd(), markers = NULL,
         progression_res <- NULL
     }
     
+    
     ## wrap the results
     analysis_results <- list(expressionData = exprs_data,
                              dimReductionMethod = dimReductionMethod,
                              visualizationMethods = visualizationMethods,
                              dimReducedRes = allDimReducedList,
                              clusterRes = cluster_res, 
-                             progressionRes = progression_res)
+                             progressionRes = progression_res,
+                             allExpressionData = exprs_data_all)
      
     
     ## save the results
@@ -291,7 +302,28 @@ cytofkit <- function(fcsFiles = getwd(), markers = NULL,
     }
 }
 
-
+# this is for save all markers for visualization in the shiny web app
+# save all markers may cause error in transformation
+match_markers <- function(fcsFile, markers=NULL){
+    fcs <- suppressWarnings(read.FCS(fcsFile))
+    pd <- fcs@parameters@data
+    
+    if (!(is.null(markers))) {
+        right_marker <- markers %in% pd$desc || markers %in% pd$name
+        if (!(right_marker)) {
+            stop("\n Selected marker(s) is not in the input fcs files \n please check your selected markers! \n")
+        } else {
+            desc_id <- match(markers, pd$desc)
+            name_id <- match(markers, pd$name)
+            mids <- c(desc_id, name_id)
+            marker_id <- unique(mids[!is.na(mids)])
+        }
+        return(marker_id)
+    } else {
+        tl_channel <- pd$name %in% c("Time", "Event_length", "Length", "length", "time", "event_length")
+        return(pd$name[!tl_channel])
+    }
+}
 
 
 #' A Shiny app to interactively visualize the analysis results 

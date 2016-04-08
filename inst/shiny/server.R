@@ -32,7 +32,7 @@ shinyServer(function(input, output, session) {
     colourLabels <- reactive({
         if(is.null(resObj()))
             return(NULL)
-        clabels <- c(names(resObj()$clusterRes), colnames(resObj()$expressionData))
+        clabels <- c(names(resObj()$clusterRes), colnames(resObj()$allExpressionData))
         return(clabels)
     })
     
@@ -152,8 +152,10 @@ shinyServer(function(input, output, session) {
     output$heatmapPlot <- renderPlot({
         if(is.null(resObj()))
             return(NULL)
-        heatMap(resObj(), input$clusterMethod, input$heatmapMethod, input$samples,
-                input$rLabelSize, input$cLabelSize)
+        heatMap(data=resObj(), clusterMethod=input$clusterMethod, 
+                type=input$heatmapMethod, selectSamples=input$samples,
+                cex_row_label=input$rLabelSize, cex_col_label=input$cLabelSize, 
+                scaleMethod = input$scaleMethod)
     }, height = 800, width = 850)
     
     ## progression plot

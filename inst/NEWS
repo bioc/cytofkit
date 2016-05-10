@@ -1,2 +1,23 @@
 FIRST VERSION OF SIDAP,
 sidap be renamed to cytofkit
+
+
+30/12/2015 cytofkit 1.2.1 a new version with great updates:
+  - redesigned pipeline with general frame
+  - new clustering methods ClusterX and Rphenograph
+  - add progression estimation using ISOMAP
+  - a lot of function names were changed to be more intuitive
+  - updated GUI 
+  - added a shiny APP to access the results interactively
+  - updated vignettes 
+  
+
+04/03/2016 cytofkit 1.2.2 updates:
+  - removed comp parameter in cytofkit-function
+  - change parameter comp to ifCompensation in cytofkit-function
+  - adjust the order of parameters in cytofkit-funciton
+  
+
+04/03/2016 cytofkit 1.2.3 updates:
+  - updated the shiny APP, heatmap scale, plot with selection of all markers
+  - save a copy of expression with all markers

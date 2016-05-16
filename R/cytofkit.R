@@ -171,18 +171,19 @@ cytofkit <- function(fcsFiles = getwd(), markers = NULL,
     if (is.null(markers) || length(markers) < 1) 
         stop("no marker selected!")
     
-    if (!(mergeMethod %in% c("ceil", "all", "min", "fixed"))) 
+    if (!is.null(mergeMethod) && !(mergeMethod %in% c("ceil", "all", "min", "fixed"))) 
         stop("mergeMethod doesn't exist in cytofkit!")
     
-    if (!(transformMethod %in% c("auto_lgcl", "fixed_lgcl", "arcsin", 
+    if (!is.null(transformMethod) && !(transformMethod %in% c("auto_lgcl", "fixed_lgcl", "arcsin", 
         "biexp"))) 
         stop("transformMethod doesn't exist in cytofkit!")
     
-    if (!is.null(dimReductionMethod) && !(dimReductionMethod %in% 
-        c("tsne", "pca", "isomap"))) 
+    if (!is.null(dimReductionMethod) && !(dimReductionMethod %in% c("tsne", "pca", "isomap"))) 
         stop("dimReductionMethod doesn't exist in cytofkit!")
     
-    if(length(dimReductionMethod) > 1) dimReductionMethod <- "tsne"
+    ## force dimReductionMethod to tSNE
+    if(length(dimReductionMethod) > 1 || is.null(dimReductionMethod)) 
+        dimReductionMethod <- "tsne"
     
     if (!is.null(clusterMethods) && !all(clusterMethods %in% c("densVM", 
         "ClusterX", "Rphenograph"))) 

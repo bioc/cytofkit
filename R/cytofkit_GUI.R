@@ -483,7 +483,7 @@ cytofkit_GUI <- function() {
                  mergeMethod = inputs[["mergeMethod"]], 
                  fixedNum = inputs[["fixedNum"]], 
                  transformMethod = "auto_lgcl", 
-                 dimReductionMethod = inputs[["dimReductionMethod"]], 
+                 dimReductionMethod = "tsne", 
                  clusterMethods = inputs[["clusterMethods"]], 
                  visualizationMethods = inputs[["visualizationMethods"]], 
                  progressionMethod = inputs[["progressionMethod"]], 

@@ -2,24 +2,31 @@
 % Please edit documentation in R/cytofkit.R
 \name{cytofkit}
 \alias{cytofkit}
-\title{cytofkit: an integrated analysis pipeline for mass cytometry data}
+\title{cytofkit: an integrated mass cytometry data analysis pipeline}
 \usage{
-cytofkit(fcsFiles = getwd(), markers = NULL, projectName = "cytofkit",
-  mergeMethod = "ceil", fixedNum = 10000, ifCompensation = FALSE,
-  transformMethod = "auto_lgcl", dimReductionMethod = "tsne",
-  clusterMethods = "ClusterX", visualizationMethods = "tsne",
-  progressionMethod = NULL, uniformClusterSize = 500, resultDir = getwd(),
-  saveResults = TRUE, saveObject = TRUE, saveToFCS = TRUE,
-  scaleTo = NULL, q = 0.05, ...)
+cytofkit(fcsFiles = getwd(), markers = "parameter.txt",
+  projectName = "cytofkit", ifCompensation = FALSE,
+  transformMethod = c("cytofAsinh", "autoLgcl", "logicle", "arcsinh"),
+  mergeMethod = c("ceil", "all", "min", "fixed"), fixedNum = 10000,
+  dimReductionMethod = c("tsne", "pca", "isomap"),
+  clusterMethods = c("Rphenograph", "ClusterX", "DensVM", "FlowSOM", "NULL"),
+  visualizationMethods = c("tsne", "pca", "isomap", "NULL"),
+  progressionMethod = c("tsne", "pca", "isomap", "NULL"), FlowSOM_k = 40,
+  uniformClusterSize = 500, resultDir = getwd(), saveResults = TRUE,
+  saveObject = TRUE, saveToFCS = TRUE, ...)
 }
 \arguments{
-\item{fcsFiles}{it can be either the name of the path where stores your FCS files or a vector of FCS file names.}
+\item{fcsFiles}{It can be either the path where stores your FCS files or a vector of FCS file names.}
 
-\item{markers}{it can be either a text file that specifies the makers to be used for analysis or a vector of the marker names.}
+\item{markers}{It can be either a text file where contains the makers to be used for analysis or a vector of the marker names.}
 
-\item{projectName}{a prefix that will be added to the names of result files.}
+\item{projectName}{A prefix that will be added to the names of all result files.}
 
-\item{mergeMethod}{when multiple fcs files are selected, cells can be combined using 
+\item{ifCompensation}{Either boolean value tells if do compensation (compensation matrix contained in FCS), or a compensation matrix to be applied.}
+
+\item{transformMethod}{Data Transformation method, including \code{cytofAsinh} (suggest for CyTOF data), \code{autoLgcl} (suggest for FCM data), \code{logicle} and \code{arcsinh}.}
+
+\item{mergeMethod}{When multiple fcs files are selected, cells can be combined using 
 one of the four different methods including \code{ceil}, \code{all}, \code{min}, \code{fixed}. 
 The default option is \code{ceil}, up to a fixed number (specified by \code{fixedNum}) of cells are sampled 
 without replacement from each fcs file and combined for analysis.
@@ -28,65 +35,64 @@ without replacement from each fcs file and combined for analysis.
 \code{fixed}: a fixed num (specified by fixedNum) of cells are sampled (with replacement when the total number of cell is less than 
 fixedNum) from each fcs file and combined for analysis.}
 
-\item{fixedNum}{up to fixedNum of cells from each fcs file are used for analysis.}
+\item{fixedNum}{The fixed number of cells to be extracted from each FCS file.}
 
-\item{ifCompensation}{Boolean value to decide if do compensation. This will be applied to flow cytometry data.}
+\item{dimReductionMethod}{The method used for dimensionality reduction, including \code{tsne}, \code{pca} and \code{isomap}.}
 
-\item{transformMethod}{dat transformation method, either \code{auto_lgcl}, \code{fixed_lgcl}, \code{arcsin} or \code{biexp}.}
+\item{clusterMethods}{The clustering method(s) used for subpopulation detection, including \code{DensVM}, \code{ClusterX}, \code{Rphenograph} and \code{FlowSOM}. Multiple selection are accepted.}
 
-\item{dimReductionMethod}{the method used for dimensionality reduction, including \code{tsne}, \code{pca} and \code{isomap}.}
+\item{visualizationMethods}{The method(s) used for visualize the cluster data, including \code{tsne}, \code{pca} and \code{isomap}. Multiple selection are accepted.}
 
-\item{clusterMethods}{the clustering method(s) used for subpopulation detection, including \code{densVM}, \code{ClusterX} and \code{Rphenograph}. Multiple selection are accepted.}
+\item{progressionMethod}{Use the first ordination score of \code{isomap} to estimated the preogression order of cells, choose \code{NULL} to ignore.}
 
-\item{visualizationMethods}{the method(s) used for visualize the cluster data, including \code{tsne}, \code{pca} and \code{isomap}. Multiple selection are accepted.}
+\item{FlowSOM_k}{Number of clusters for meta clustering in FlowSOM.}
 
-\item{progressionMethod}{use the first ordination score of \code{isomap} to estimated the preogression order of cells, choose \code{NULL} to ignore.}
+\item{uniformClusterSize}{The uniform size of each cluster.}
 
-\item{uniformClusterSize}{the uniform size of each cluster.}
+\item{resultDir}{The directory where result files will be generated.}
 
-\item{resultDir}{the directory where result files will be generated.}
+\item{saveResults}{If save the results, and the post-processing results including scatter plot, heatmap, and statistical results.}
 
-\item{saveResults}{if save the results, and the post-processing results including scatter plot, heatmap, and statistical results.}
+\item{saveObject}{Save the resutls into RData objects for loading back to R for further analysis}
 
-\item{saveObject}{save the resutls into RData objects for loading back to R for further analysis}
+\item{saveToFCS}{Save the results back to the FCS files, new FCS files will be generated.}
 
-\item{saveToFCS}{save the results back to the FCS files, new FCS files will be generated.}
+\item{...}{Other arguments passed to \code{cytof_exprsExtract}}
 
-\item{scaleTo}{scale the expression values to the same scale after transformation, default is NULL, should be a vector of two numbers if scale.}
-
-\item{q}{quantile of negative values removed for auto w estimation in logicle transformation, default is 0.05.}
-
-\item{...}{more arguments contral the logicle transformation}
+\item{scaleTo}{Scale the expression values to the same scale after transformation, default is NULL, should be a vector of two numbers if scale.}
 }
 \value{
-a list containing \code{expressionData}, \code{dimReductionMethod}, \code{visualizationMethods}, \code{dimReducedRes}, \code{clusterRes} and \code{progressionRes}. If choose 'saveResults = TRUE', results will be saved into files under \code{resultDir}
+a list containing \code{expressionData}, \code{dimReductionMethod}, \code{visualizationMethods}, \code{dimReducedRes}, \code{clusterRes}, \code{progressionRes} and \code{allExpressionData}. If choose 'saveResults = TRUE', results will be saved into files under \code{resultDir}.
 }
 \description{
-A user friendly GUI is provided for easy usage of cytofkit, \code{\link{cytofkit_GUI}}.
+The main function to drive the cytofkit workflow.
 }
 \details{
-\code{cytofkit} provides a workflow for one or multiple CyTOF data analysis, 
-including data preprocess with merging methods of multiple fcs file, expression data transformation, 
-dimension reduction with PCA, isomap or tsne(default), clustering methods(densVM, ClusterX, Rphenograph) 
-for subpopulation detection, and estimation of cellular progression with isomap. The analysis results 
-can be visualized with scatter plot, heatmap plot or progression plot. Moreover theses results can be saved back to 
-FCS files. By default the results will be automatically saved for further annotation. An interactive web application is
-provided for interactive exploration of the analysis results, \code{cytofkitShinyAPP}.
+\code{cytofkit} works as the main funciton to perform the analysis of one or multiple FCS files. 
+The workflow contains data merging from multiple FCS file, expression data transformation, 
+dimensionality reduction with \code{PCA}, \code{isomap} or \code{tsne} (default), clustering 
+analysis with methods includes \code{DensVM}, \code{ClusterX}, \code{Rphenograph)} and \code{FlowSOM} for 
+subpopulation detection, and estimation of cellular progression using \code{isomap}. The analysis 
+results can be visualized using scatter plot, heatmap plot or progression plot. Dimension reduced 
+data and cluster labels will be saved back to new copies of FCS files. By default the analysis 
+results will be automatically saved under \code{resultDir} for further annotation. Moreover An 
+interactive web application is provided for interactive exploration of the analysis results, 
+see \code{cytofkitShinyAPP}.
 }
 \examples{
 dir <- system.file('extdata',package='cytofkit')
 file <- list.files(dir, pattern='.fcs$', full=TRUE)
 parameters <- list.files(dir, pattern='.txt$', full=TRUE)
 ## remove the hash symbol to run the following command
-#cytofkit(fcsFile = file, markers = parameters, projectName = 'test')   
+#cytofkit(fcsFile = file, markers = parameters)   
 }
 \author{
-Chen Jinmiao, Chen Hao
+Hao Chen, Jinmiao Chen
 }
 \references{
 \url{http://signbioinfo.github.io/cytofkit/}
 }
 \seealso{
-\code{\link{cytofkit}}, \code{\link{cytofkit_GUI}}
+\code{\link{cytofkit}}, \code{\link{cytofkit_GUI}}, \code{\link{cytofkitShinyAPP}}
 }
 

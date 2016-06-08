@@ -1,16 +1,15 @@
-#' Merge the transformed expression data of FCS file(s) of selected markers
+#' Merge the expression matrix from multiple FCS files with preprocessing
 #' 
-#' Apply transformation of selected markers of each FCS file, arcsin, biexponential, auto logicle
-#' transformation and fixed logicle transformation are provided, then mutilple 
-#' FCS files are merged using method \code{all}, \code{min}, \code{fixed} or \code{ceil}
+#' Apply preprocessing on each FCS file including compensation (for FCM data only) and transformation
+#' with selected markers, then expression matrix are extracted and merged using one of the methods, 
+#' \code{all}, \code{min}, \code{fixed} or \code{ceil}
 #' 
-#' @param fcsFiles the input fcsFiles (usually more than 1 file)
-#' @param comp Boolean value tells if do compensation
-#' @param verbose Boolean value detecides if print the massage details
-#' @param markers Selected markers for analysis, either from names or from description
-#' @param transformMethod transformation method, \code{auto_lgcl}, \code{fixed_lgcl}, \code{arcsin} or \code{biexp}
-#' @param scaleTo scale the expression to same scale, default is NULL, should be a vector of two numbers if scale
-#' @param mergeMethod merge method for mutiple FCS expression data. cells can be combined using 
+#' @param fcsFiles A vector of FCS file names.
+#' @param comp Either boolean value tells if do compensation (compensation matrix contained in FCS), or a compensation matrix to be applied.
+#' @param markers Selected markers for analysis, either marker names/descriptions or marker IDs.
+#' @param transformMethod Data Transformation method, including \code{cytofAsinh} (suggest for CyTOF data), \code{autoLgcl} (suggest for FCM data), \code{logicle} and \code{arcsinh}.
+#' @param scaleTo Scale the expression to a specified range c(a, b), default is NULL.
+#' @param mergeMethod Merge method for mutiple FCS expression data. cells can be combined using 
 #' one of the four different methods including \code{ceil}, \code{all}, \code{min}, \code{fixed}. 
 #' The default option is \code{ceil}, up to a fixed number (specified by \code{fixedNum}) of cells are sampled 
 #' without replacement from each fcs file and combined for analysis.
@@ -18,89 +17,106 @@
 #' \code{min}: The minimum number of cells among all the selected fcs files are sampled from each fcs file and combined for analysis. 
 #' \code{fixed}: a fixed num (specified by fixedNum) of cells are sampled (with replacement when the total number of cell is less than 
 #' fixedNum) from each fcs file and combined for analysis.
-#' @param fixedNum the fixed number of cells for merging multiple FCSs
-#' @param w Linearization width in asymptotic decades
-#' @param t Top of the scale data value
-#' @param m Full width of the transformed display in asymptotic decades
-#' @param a Additional negative range to be included in the display in asymptotic decades
-#' @param q quantile of negative values removed for auto w estimation, default is 0.05
+#' @param fixedNum The fixed number of cells to be extracted from each FCS file.
+#' @param ... Other arguments passed to \code{cytof_exprsExtract}
 #' 
-#' @return Merged FCS expression data matrix of selected markers after transformation
+#' @return A matrix containing the merged expression data, with selected markers, row names added as \code{filename_cellID}, column mamed added as \code{name<desc>}.
+#' @seealso \code{\link{cytof_exprsExtract}}
 #' @export
 #' @examples
 #' d<-system.file('extdata',package='cytofkit')
 #' fcsFiles <- list.files(d,pattern='.fcs$',full=TRUE)
-#' merged <- cytof_exprsMerge(fcsFiles)
-cytof_exprsMerge <- function(fcsFiles, comp = FALSE, verbose = FALSE, 
-    markers = NULL, transformMethod = "auto_lgcl", scaleTo = NULL, 
-    mergeMethod = "ceil", fixedNum = 10000, w = 0.1, t = 4000, 
-    m = 4.5, a = 0, q = 0.05) {
+#' parameters <- list.files(d, pattern='.txt$', full=TRUE)
+#' markers <- as.character(read.table(parameters, sep = "\t", header = TRUE)[, 1])
+#' merged <- cytof_exprsMerge(fcsFiles, markers = markers)
+cytof_exprsMerge <- function(fcsFiles, 
+                             comp = FALSE, 
+                             markers = NULL, 
+                             transformMethod = "cytofAsinh", 
+                             scaleTo = NULL, 
+                             mergeMethod = c("ceil", "all", "fixed", "min"), 
+                             fixedNum = 10000, ...) {
     
-    exprsL <- mapply(cytof_exprsExtract, fcsFiles, MoreArgs = list(comp = comp, 
-        verbose = verbose, markers = markers, transformMethod = transformMethod, 
-        scaleTo = scaleTo, w = w, t = t, m = m, a = a, q = q), 
-        SIMPLIFY = FALSE)
-    
-    if (mergeMethod == "all") {
-        merged <- do.call(rbind, exprsL)
-    } else if (mergeMethod == "min") {
-        minSize <- min(sapply(exprsL, nrow))
-        mergeFunc <- function(x) {
-            x[sample(nrow(x), size = minSize, replace = FALSE), ]
-        }
-        merged <- do.call(rbind, lapply(exprsL, mergeFunc))
-    } else if (mergeMethod == "fixed") {
-        mergeFunc <- function(x) {
-            x[sample(nrow(x), size = fixedNum, replace = ifelse(nrow(x) < 
-                fixedNum, TRUE, FALSE)), ]
-        }
-        merged <- do.call(rbind, lapply(exprsL, mergeFunc))
-    } else if (mergeMethod == "ceil") {
-        mergeFunc <- function(x) {
-            if (nrow(x) < fixedNum) {
-                x
-            } else {
-                x[sample(nrow(x), size = fixedNum, replace = FALSE), 
-                  ]
-            }
-        }
-        merged <- do.call(rbind, lapply(exprsL, mergeFunc))
-    } else {
-        stop("mergeMethod [", mergeMethod, "] doesn't exit for cytofkit!")
-    }
+    exprsL <- mapply(cytof_exprsExtract, fcsFiles, 
+                     MoreArgs = list(comp = comp, markers = markers, 
+                                     transformMethod = transformMethod, 
+                                     scaleTo = scaleTo, ...), 
+                     SIMPLIFY = FALSE)
+
+    mergeMethod <- match.arg(mergeMethod)
+    switch(mergeMethod,
+           ceil = {
+               mergeFunc <- function(x) {
+                   if (nrow(x) < fixedNum) {
+                       x
+                   } else {
+                       x[sample(nrow(x), size = fixedNum, replace = FALSE), , drop = FALSE]
+                   }
+               }
+               merged <- do.call(rbind, lapply(exprsL, mergeFunc))
+           },
+           all = {
+               merged <- do.call(rbind, exprsL)
+           },
+           fixed = {
+               mergeFunc <- function(x) {
+                   x[sample(nrow(x), size = fixedNum, replace = ifelse(nrow(x) < fixedNum, TRUE, FALSE)), , drop=FALSE]
+               }
+               merged <- do.call(rbind, lapply(exprsL, mergeFunc))
+           },
+           min = {
+               minSize <- min(sapply(exprsL, nrow))
+               mergeFunc <- function(x) {
+                   x[sample(nrow(x), size = minSize, replace = FALSE), , drop=FALSE]
+               }
+               merged <- do.call(rbind, lapply(exprsL, mergeFunc))
+           })
     
     return(merged)
 }
 
 
-#' Extract the expression matrix of the FCS data
+#' Extract the expression data from a FCS file with preprocessing
 #' 
-#' Extract the FCS expresssion data and apply the transformation 
+#' Extract the FCS expresssion data with preprocessing of compensation (for FCM data only)
+#' and transformation. Transformtion methods includes \code{cytofAsinh} (suggest for CyTOF data), 
+#' \code{autoLgcl} (suggest for FCM data), \code{logicle} (customizable) and \code{arcsinh} (customizable).
 #' 
-#' @param fcsFile The name of the FCS file
-#' @param comp Boolean value tells if do compensation
-#' @param verbose Boolean value detecides if print the massage details
-#' @param markers Selected markers for analysis, either from names or from description
-#' @param transformMethod transformation method, \code{auto_lgcl}, \code{fixed_lgcl}, \code{arcsin} or \code{biexp}
-#' @param scaleTo scale the expression to same scale, default is NULL, should be a vector of two numbers if scale
-#' @param w Linearization width in asymptotic decades
-#' @param t Top of the scale data value
-#' @param m Full width of the transformed display in asymptotic decades
-#' @param a Additional negative range to be included in the display in asymptotic decades
-#' @param q quantile of negative values removed for auto w estimation, default is 0.05
+#' @param fcsFile The name of the FCS file.
+#' @param verbose Boolean value detecides if print the massage details of FCS loading.
+#' @param comp Either boolean value tells if do compensation (compensation matrix contained in FCS), or a compensation matrix to be applied.
+#' @param markers Selected markers for analysis, either marker names/descriptions or marker IDs.
+#' @param transformMethod Data Transformation method, including \code{cytofAsinh} (suggest for CyTOF data), \code{autoLgcl} (suggest for FCM data), \code{logicle} and \code{arcsinh}.
+#' @param scaleTo Scale the expression to a specified range c(a, b), default is NULL.
+#' @param q quantile of negative values removed for auto w estimation, default is 0.05, parameter for autoLgcl transformation.
+#' @param l_w Linearization width in asymptotic decades, parameter for logicle transformation.
+#' @param l_t Top of the scale data value, parameter for logicle transformation.
+#' @param l_m Full width of the transformed display in asymptotic decades, parameter for logicle transformation.
+#' @param l_a Additional negative range to be included in the display in asymptotic decades, parameter for logicle transformation.
+#' @param a_a Positive double that corresponds to the base of the arcsinh transformation, \code{arcsinh} = asinh(a + b * x) + c).
+#' @param a_b Positive double that corresponds to a scale factor of the arcsinh transformation, \code{arcsinh} = asinh(a + b * x) + c).
+#' @param a_c Positive double that corresponds to another scale factor of the arcsinh transformation, \code{arcsinh} = asinh(a + b * x) + c).
 #' 
-#' @return The transformend expression data matrix with selected markers
+#' @return A transformend expression data matrix with selected markers, row names added as \code{filename_cellID}, column mamed added as \code{name<desc>}.
 #' @importFrom flowCore read.FCS compensate estimateLogicle logicleTransform parameters transformList arcsinhTransform biexponentialTransform
 #' @importMethodsFrom flowCore transform
 #' @importClassesFrom flowCore transformList
 #' @export
 #' @examples
-#' d<-system.file('extdata',package='cytofkit')
+#' d <- system.file('extdata',package='cytofkit')
 #' fcsFile <- list.files(d,pattern='.fcs$',full=TRUE)
-#' transformed <- cytof_exprsExtract(fcsFile)
-cytof_exprsExtract <- function(fcsFile, comp = FALSE, verbose = FALSE, 
-    markers = NULL, transformMethod = "auto_lgcl", scaleTo = NULL, 
-    w = 0.1, t = 4000, m = 4.5, a = 0, q = 0.05) {
+#' parameters <- list.files(d, pattern='.txt$', full=TRUE)
+#' markers <- as.character(read.table(parameters, sep = "\t", header = TRUE)[, 1])
+#' transformed <- cytof_exprsExtract(fcsFile, markers = markers)
+cytof_exprsExtract <- function(fcsFile, 
+                               verbose = FALSE, 
+                               comp = FALSE, 
+                               markers = NULL, 
+                               transformMethod = c("cytofAsinh", "autoLgcl", "logicle", "arcsinh"), 
+                               scaleTo = NULL, 
+                               q = 0.05,
+                               l_w = 0.1, l_t = 4000, l_m = 4.5, l_a = 0,
+                               a_a = 1, a_b = 1, a_c =0) {
     
     ## load FCS files
     name <- sub(".fcs", "", basename(fcsFile))
@@ -110,50 +126,72 @@ cytof_exprsExtract <- function(fcsFile, comp = FALSE, verbose = FALSE,
         fcs <- suppressWarnings(read.FCS(fcsFile))
     }
     
-    ## compensation if provided in the data
-    if (comp == TRUE) {
-        if (comp && !is.null(fcs@description$SPILL)) {
-            fcs <- applyComp(fcs, "SPILL")
-        } else if (comp && !is.null(fcs@description$SPILLOVER)) {
-            fcs <- applyComp(fcs, "SPILLOVER")
-        } else if (comp && !is.null(fcs@description$COMP)) {
-            fcs <- applyComp(fcs, "COMP")
+    ## compensation
+    if(is.matrix(comp)){
+        fcs <- applyComp(fcs, comp)
+        cat("    Compensation is applied on", fcsFile, "\n")
+    }else if(isTRUE(comp)) {
+        if(!is.null(fcs@description$SPILL)) {
+            fcs <- applyComp(fcs, fcs@description[["SPILL"]])
+            cat("    Compensation is applied on ", fcsFile, "\n")
+        }else if(!is.null(fcs@description$SPILLOVER)) {
+            fcs <- applyComp(fcs, fcs@description[["SPILLOVER"]])
+            cat("    Compensation is applied on ", fcsFile, "\n")
+        }else if(!is.null(fcs@description$COMP)) {
+            fcs <- applyComp(fcs, fcs@description[["COMP"]])
+            cat("    Compensation is applied on ", fcsFile, "\n")
+        }else{
+            warning("Cannot find compensation matrix in the FCS files!
+                    Please CHECK the keyword of 'SPILL', 'SPILLOVER', or 'COMP'
+                    in the FCS file and make sure it stores the compensation matrix.")
         }
     }
-    
-    ## marker check, allow mix marker names
+
+    ## match marker names to get marker ID, use all if NULL 
     pd <- fcs@parameters@data
     if (!(is.null(markers))) {
-        right_marker <- markers %in% pd$desc || markers %in% pd$name
-        if (!(right_marker)) {
-            stop("\n Selected marker(s) is not in the input fcs files \n please check your selected markers! \n")
-        } else {
-            desc_id <- match(markers, pd$desc)
-            name_id <- match(markers, pd$name)
-            mids <- c(desc_id, name_id)
-            marker_id <- unique(mids[!is.na(mids)])
+        if(is.numeric(markers)){
+            if(all(markers %in% 1:ncol(fcs@exprs))){
+                marker_id <- markers
+            }else{
+                stop("Marker ID out of range!")
+            }
+        }else if(is.character(markers)){
+            right_marker <- markers %in% pd$desc || markers %in% pd$name
+            if (!(right_marker)) {
+                stop("\n Selected marker(s) is not in the input fcs files \n please check your selected markers! \n")
+            } else {
+                desc_id <- match(markers, pd$desc)
+                name_id <- match(markers, pd$name)
+                mids <- c(desc_id, name_id)
+                marker_id <- unique(mids[!is.na(mids)])
+            }
+        }else{
+            stop("Sorry, input markers cannot be recognized!")
         }
-    } else {
+    }else{
         marker_id <- 1:ncol(fcs@exprs)
     }
-    
+   
     ## exprs transformation
-    if (transformMethod == "auto_lgcl") {
-        trans <- auto_lgcl(fcs, channels = colnames(fcs@exprs)[marker_id])
-        transformed <- flowCore::transform(fcs, trans)
-        exprs <- transformed@exprs[, marker_id]
-    } else if (transformMethod == "fixed_lgcl") {
-        trans <- flowCore::logicleTransform(w = w, t = t, m = m, a = a)
-        exprs <- apply(fcs@exprs[, marker_id], 2, trans)
-    } else if (transformMethod == "arcsin") {
-        trans <- flowCore::arcsinhTransform(a=1, b=1, c=1)
-        exprs <- apply(fcs@exprs[, marker_id], 2, trans)
-    } else if(transformMethod == "biexp") {
-        trans <- flowCore::biexponentialTransform(a = 0.5, b = 1, c = 0.5, d = 1, f = 0, w = 0)
-        exprs <- apply(fcs@exprs[, marker_id], 2, trans)
-    }else{
-        stop("transformMethod [", transformMethod, "] doesn't exist for cytofkit!")
-    }
+    transformMethod <- match.arg(transformMethod)
+    switch(transformMethod,
+           cytofAsinh = {
+               exprs <- apply(as.matrix(fcs@exprs[, marker_id]), 2, cytofAsinh)
+           },
+           autoLgcl = {
+               trans <- autoLgcl(fcs, channels = colnames(fcs@exprs)[marker_id], q = q)
+               transformed <- flowCore::transform(fcs, trans)
+               exprs <- transformed@exprs[, marker_id]
+           },
+           logicle = {
+               trans <- flowCore::logicleTransform(w = l_w, t = l_t, m = l_m, a = l_a)
+               exprs <- apply(fcs@exprs[, marker_id], 2, trans)
+           },
+           arcsinh = {
+               trans <- flowCore::arcsinhTransform(a = a_a, b = a_b, c = a_c)
+               exprs <- apply(fcs@exprs[, marker_id], 2, trans)
+           })
     
     ## rescale data
     if (!is.null(scaleTo)) {
@@ -173,17 +211,39 @@ cytof_exprsExtract <- function(fcsFile, comp = FALSE, verbose = FALSE,
 #' 
 #' @param fcs FCS file.
 #' @param keyword Keywords.
-applyComp <- function(fcs, keyword) {
-    comp_fcs <- compensate(fcs, fcs@description[[keyword]])
+#' @return compensated expression value
+applyComp <- function(fcs, compMatrix) {
+    comp_fcs <- compensate(fcs, compMatrix)
 }
 
 #' rescale the data
 #' 
 #' @param x data.
 #' @param range The range of the data.
+#' @return scaled data
 scaleData <- function(x, range = c(0, 4.5)) {
     (x - min(x))/(max(x) - min(x)) * (range[2] - range[1]) + range[1]
 }
+
+
+#' Noise reduced arsinh transformation 
+#' 
+#' Inverse hyperbolic sine transformation (arsinh) with a cofactor of 5, reduce noise from negative values
+#' Adopted from Plos Comp reviewer
+#' 
+#' @param value A vector of numeric values.
+#' @param cofactor Cofactor for asinh transformation, default 5 for mass cytometry data.
+#' @return transformed value
+cytofAsinh <- function(value, cofactor = 5) {
+    value <- value-1
+    loID <- which(value < 0)
+    if(length(loID) > 0)
+        value[loID] <- rnorm(length(loID), mean = 0, sd = 0.01)
+    value <- value / cofactor
+    value <- asinh(value) # value <- log(value + sqrt(value^2 + 1))
+    return(value)
+}
+
 
 #' a modified version of "estimateLogicle" from flowCore
 #' 
@@ -192,7 +252,8 @@ scaleData <- function(x, range = c(0, 4.5)) {
 #' @param channels Channel names.
 #' @param m Para m.
 #' @param q Para q.
-auto_lgcl <- function(x, channels, m = 4.5, q = 0.05) {
+#' @return a list of transformations
+autoLgcl <- function(x, channels, m = 4.5, q = 0.05) {
     if (!is(x, "flowFrame")) 
         stop("x has to be an object of class \"flowFrame\"")
     if (missing(channels)) 

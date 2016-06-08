@@ -16,10 +16,10 @@ and each parameter has a help button to show the instruction.
 \code{cytofkit} analysis will be launched after submitting.
 }
 \examples{
-#cytofkit_GUI()  # remove the comment hash to run
+#cytofkit_GUI()  # remove the hash symbol to run
 }
 \author{
-Chen Jinmiao, Chen Hao
+Hao Chen
 }
 \references{
 \url{http://signbioinfo.github.io/cytofkit/}

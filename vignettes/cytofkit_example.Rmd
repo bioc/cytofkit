@@ -1,84 +1,124 @@
-
+---
+title: "**cytofkit**: Quick Start"
+output:
+  BiocStyle::html_document:
+    toc: true
+---
 <!--
-  %\VignetteIndexEntry{cytofkit: run with an example}
-  %\VignetteEngine{knitr::knitr}
+%% \VignetteEngine{knitr::rmarkdown}
+%\VignetteIndexEntry{BiocCheck}
 -->
 
 
-Cytofkit: Quick Start
-====================================================
+# Install and Load the Package
 
 
-(NOTE: *remove the hash symbols (#) to run the codes on your machine*)
+To install **cytofkit** pacakge, start R and run the following codes on R console:
 
-Install the Package
-----------------------
-To install this package, start R and enter:
-```{r}
-#source("https://bioconductor.org/biocLite.R")
-#biocLite("cytofkit")
+```{r, eval=FALSE}
+source("https://bioconductor.org/biocLite.R")
+biocLite("cytofkit")
 ```
 
-Load the Package
---------------------
+`Notes`: **cytofkit** GUI is dependent on XQuartz windowing system (X Windows) on Mac (OS X > 10.7). Install XQuartz from http://xquartz.macosforge.org.
+
+* Download the disk image (dmg) file for [XQuartz](https://dl.bintray.com/xquartz/downloads/XQuartz-2.7.9.dmg).
+* Double-clicking on the file to start the installation, you can do it safely by clicking through all the defaults.
+* After the installer runs, you'll have to log out and back on to your Mac OS X account.
+
+Load the Package:
 
 ```{r, message=FALSE}
-#library("cytofkit") 
+library("cytofkit") 
 ```
 
-Open the package help page to take a first look of the pakcage:
-```{r, results='hide'}
-#?cytofkit-package
+Read the package description:
+
+```{r, eval=FALSE}
+?cytofkit-package
 ```
 
-Options for Using the Package
-------------------------------
 
-**Cytofkit** provides three ways to employ the workforce of this package:
+# Options for Using **cytofkit** Package
 
-1. [GUI with function](#gui)
-2. [The core function](#core)
-3. [Step-by-step](#step) 
+**cytofkit** provides three ways to employ the workforce of this package:
 
-### 1. Run With GUI {#gui}
+## Run with GUI 
 
-**Cytofkit** provides a user friendly GUI to access full options of **cytofkit** package. To launch the GUI, load the package and type the following command:
-```{r}
-# cytofkit_GUI()  ## remove the hash symbol to launch the GUI
+The easiest way to use **cytofkit** package is through the GUI. The GUI provides all main options of **cytofkit** on an visual interface. To launch the GUI, load the package and type the following command:
+
+```{r, eval=FALSE}
+cytofkit_GUI()  
 ```
 
-The interface will appear like below, you can click the information button `!` to check the information for each entry and customize your own analysis.
+The interface will appear like below, you can click the information button **!** to check the explanation for each entry and customize your own analysis.
 
-On Windows:    
+<u>On Windows:</u>       
 
 ![cytofkit GUI](cytofkit_GUI_windows.png)
 
-On Mac:   
+<u>On Mac:</u>     
 
 ![cytofkit GUI](cytofkit_GUI_mac.png)
                
+Start your analysis as simply as following:   
 
-### 2. Run With Core Function {#core}
+- Choose the input fcs files from the directory where you store FCS data; 
+- Select the markers from the auto-generated marker list; 
+- Choose the directory where to save your output; 
+- Give a project name as a prefix for the names of result files; 
+- Select a data merging method if you have multiple FCS files;
+- Select your clustering method(s), visualization method(s), progression estimation method(s)
 
-**Cytofkit** provides a core function `cytofkit()` to facilitate the analysis pipeline of mass cytometry data. Users only need to define several key parameters to make their analysis automatically. One simple example of running cytofkit using the core function is like this:
+Then submit it, that's all. 
+
+Depends on the size of your data, it will take some time to run the analysis. Once done, a window will pop up, showing you the path where the results have been stored, and asking you if to open the shiny web APP. If YES, the shiny APP will be deployed locally and opened in your default web browser. Among the saved results, a special R data object with suffix of *.RData* is for loading the results into the shiny APP. Choose the *.RData* file on the shiny APP then submit it, your journey of exploring the reulsts starts.
+
+## Run with the Core Function 
+
+**Cytofkit** provides a core function `cytofkit()` to drive the analysis pipeline of mass cytometry data. Users only need to define several key parameters to make their analysis automatically. One simple example of running cytofkit using the core function is like this:
+
 ```{r, eval=FALSE}
-#dir <- system.file('extdata',package='cytofkit')
-#file <- list.files(dir ,pattern='.fcs$', full=TRUE)
-#parameters <- list.files(dir, pattern='.txt$', full=TRUE)
-# cytofkit(fcsFile = file, markers = parameters, projectName = 'test')  
+set.seed(100)
+dir <- system.file('extdata',package='cytofkit')
+file <- list.files(dir ,pattern='.fcs$', full=TRUE)
+parameters <- list.files(dir, pattern='.txt$', full=TRUE)
+res <- cytofkit(fcsFiles = file, 
+                markers = parameters, 
+                projectName = 'cytofkit_test',
+                transformMethod = "cytofAsinh", 
+                mergeMethod = "all",
+                dimReductionMethod = "tsne",
+                clusterMethods = c("Rphenograph", "ClusterX", "densVM"),  ## accept multiple methods
+                visualizationMethods = c("tsne", "pca", "isomap"),        ## accept multiple methods
+                progressionMethod = NULL,
+                resultDir = getwd(),
+                saveResults = FALSE, 
+                saveObject = FALSE, 
+                saveToFCS = FALSE)
 ```
 
-You can also define more parameters to customize your own analysis, please check the help page of `cytofkit()` to get more information of the parameters.
-```{r, results='hide'}
-#?cytofkit
-```
-             
+You can customize the parameters for your own need, run `?cytofkit` to get information of all the parameters for `cytofkit`. As running with GUI, once the analysis is done, the results will be saved under `resultDir` automatically.
+      
 
-### 3. Run With Commands (Step-by-step) {#step}
+## Run with Commands (Step-by-Step) 
 
-Due to the usually big size of the fcs data, we just use one small size file here as a demo, you can easily expand the analysis to multiple .fcs files.
+Due to the usually big size of the fcs data, we just use one small size file here as a demo, you can easily expand the analysis to multiple FCS files.
+
+### Pre-processing
+
+In each FCS file, 
 
 
+### Cell Subset Detection
 
+
+### Cell Subset Visualization and Interpretation 
+
+
+### Inference of Subset Progression
+
+
+### Post-processing
                         
 

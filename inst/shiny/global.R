@@ -5,11 +5,24 @@ library(reshape2)
 library(reshape)
 library(plyr)
 library(VGAM)
+library(FlowSOM)
+
+## Van Gassen S, Callebaut B and Saeys Y (2014). FlowSOM: Using self-organizing maps for 
+## visualization and interpretation of cytometry data. 
+## http://www.r-project.org, http://dambi.ugent.be.
+
+#' @import FlowSOM
+FlowSOM_integrate2cytofkit <- function(xdata, k, ...){
+    map <- FlowSOM:::SOM(xdata, silent = TRUE, ...)
+    metaCluster <- suppressMessages(FlowSOM::metaClustering_consensus(map$codes, k = k))
+    cluster <- metaCluster[map$mapping[,1]]
+}
 
 
+# FlowSOM, DensityPlot, DotPlot, ColorBySample
 visuaPlot <- function(obj, xlab, ylab, zlab, pointSize=1, 
-                      addLabel=TRUE, labelSize=1, selectSamples,
-                      removeOutlier = TRUE){
+                      addLabel=TRUE, labelSize=1, sampleLabel = TRUE,
+                      FlowSOM_k = 40, selectSamples, removeOutlier = TRUE){
     
     data <- cbind(obj$allExpressionData, do.call(cbind, obj$dimReducedRes))
     data <- as.data.frame(data)
@@ -17,6 +30,15 @@ visuaPlot <- function(obj, xlab, ylab, zlab, pointSize=1,
     for(cname in clusterMethods){
         data[[cname]] <- as.factor(obj$clusterRes[[cname]])
     }
+    
+    ## run FlowSOM in shinyAPP
+    if(zlab == "runFlowSOM"){
+        FlowSOM_cluster <- FlowSOM_integrate2cytofkit(obj$expressionData, FlowSOM_k)
+        data[["FlowSOM"]] <- as.factor(FlowSOM_cluster)
+        clusterMethods <- c(clusterMethods, "FlowSOM")
+        zlab <- "FlowSOM"
+    }
+    
     row.names(data) <- row.names(obj$expressionData)
     samples <- sub("_[0-9]*$", "", row.names(obj$expressionData))
     
@@ -24,26 +46,55 @@ visuaPlot <- function(obj, xlab, ylab, zlab, pointSize=1,
     nsamples <- samples[samples %in% selectSamples]
     data$sample <- nsamples
     sample_num <- length(unique(nsamples))
-    if (sample_num >= 8) {
-        shape_value <- LETTERS[1:sample_num]
-    } else {
-        shape_value <- c(1:sample_num) + 15
-    }
     
-    if(zlab %in% clusterMethods){
+    colPalette <- colorRampPalette(c("blue", "turquoise", "green", 
+                                     "yellow", "orange", "red"))
+
+    if(zlab == "DensityPlot"){
+        densCol <- densCols(data[, c(xlab, ylab)], colramp = colPalette)
+        data$densCol <- densCol
+        gp <- ggplot(data, aes_string(x=xlab, y=ylab)) + 
+            geom_point(colour=densCol, size = pointSize) + ggtitle("Density Plot") +
+            theme(legend.position = "right") + xlab(xlab) + ylab(ylab) + theme_bw() + 
+            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+            theme(axis.text=element_text(size=14), axis.title=element_text(size=18,face="bold"))
+    }else if(zlab == "DotPlot"){
+        gp <- ggplot(data, aes_string(x=xlab, y=ylab)) + 
+            geom_point(size = pointSize) + ggtitle("Dot Plot") +
+            xlab(xlab) + ylab(ylab) + theme_bw() + 
+            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+            theme(axis.text=element_text(size=14), axis.title=element_text(size=18,face="bold"))
+    }else if(zlab == "ColorBySample"){
+        size_legend_row <- ceiling(sample_num/4)
+        gp <- ggplot(data, aes_string(x=xlab, y=ylab)) + 
+            geom_point(aes(colour = sample), size = pointSize) + ggtitle("Color By Sample") +
+            xlab(xlab) + ylab(ylab) + theme_bw() + 
+            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+            theme(legend.position = "bottom", axis.text=element_text(size=14), axis.title=element_text(size=18,face="bold")) +
+            guides(colour = guide_legend(nrow = size_legend_row, override.aes = list(size = 4)))
+    }else if(zlab %in% clusterMethods){
         cluster_num <- length(unique(data[[zlab]]))
         col_legend_row <- ceiling(cluster_num/15)
         size_legend_row <- ceiling(sample_num/4)
-        shapeLab <- "sample"
         
-        gp <- ggplot(data, aes_string(x=xlab, y=ylab, colour = zlab, shape = shapeLab)) + 
-            geom_point(size = pointSize) + scale_shape_manual(values = shape_value) + 
-            scale_colour_manual(values = rainbow(cluster_num)) + 
-            xlab(xlab) + ylab(ylab) + #coord_fixed() + 
-            guides(colour = guide_legend(nrow = col_legend_row, override.aes = list(size = 4)), 
-                   shape = guide_legend(nrow = size_legend_row, override.aes = list(size = 4))) + 
-            theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-        
+        if(sampleLabel){
+            if (sample_num >= 8) {
+                shape_value <- LETTERS[1:sample_num]
+            } else {
+                shape_value <- c(1:sample_num) + 15
+            }
+            shapeLab <- "sample"
+            gp <- ggplot(data, aes_string(x=xlab, y=ylab, colour = zlab, shape = shapeLab)) + 
+                geom_point(size = pointSize) + scale_shape_manual(values = shape_value) +
+                scale_colour_manual(values = rainbow(cluster_num)) + 
+                guides(colour = guide_legend(nrow = col_legend_row, override.aes = list(size = 4)), 
+                       shape = guide_legend(nrow = size_legend_row, override.aes = list(size = 4)))
+        }else{
+            gp <- ggplot(data, aes_string(x=xlab, y=ylab, colour = zlab)) + 
+                geom_point(size = pointSize) + scale_colour_manual(values = rainbow(cluster_num)) + 
+                guides(colour = guide_legend(nrow = col_legend_row, override.aes = list(size = 4)))
+        }
+         
         if(addLabel){
             edata <- data[ ,c(xlab, ylab, zlab)]
             colnames(edata) <- c('x', "y", "z")
@@ -52,21 +103,23 @@ visuaPlot <- function(obj, xlab, ylab, zlab, pointSize=1,
                                 size = labelSize, colour = "black")
         }
         
-        gp <- gp + theme(legend.position = "bottom", axis.text=element_text(size=14),
+        gp <- gp + xlab(xlab) + ylab(ylab) + 
+            theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+            theme(legend.position = "bottom", axis.text=element_text(size=14),
                          axis.title=element_text(size=18,face="bold"))
     
     }else{
         ## ggplot aes cannot recognize marker names with symbol <>
         title <- zlab
-        data <- data[,c(xlab, ylab, zlab)]
+        data <- data[ ,c(xlab, ylab, zlab)]
         if(removeOutlier)
             data[,zlab] <- remove_outliers(data[,zlab])
         zlab <- "Expression"
         colnames(data) <- c(xlab, ylab, zlab)
         gp <- ggplot(data, aes_string(x = xlab, y = ylab, colour = zlab)) + 
-            geom_point(size = pointSize) + theme_bw() + #coord_fixed() + 
-            scale_colour_gradient2(low="blue", mid="white", high="red", midpoint=median(data[[zlab]])) +
-            theme(legend.position = "right") + xlab(xlab) + ylab(ylab) + ggtitle(title) +
+            geom_point(size = pointSize) + ggtitle(title) +
+            scale_colour_gradient2(low="blue", mid="lightyellow", high="red", midpoint=median(data[[zlab]])) +
+            theme(legend.position = "right") + xlab(xlab) + ylab(ylab) + theme_bw() + 
             theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
             theme(axis.text=element_text(size=14), axis.title=element_text(size=18,face="bold"))
     }

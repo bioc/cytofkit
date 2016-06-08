@@ -4,14 +4,19 @@
 \alias{cytof_heatmap}
 \title{Heatmap plot of cluster mean value results}
 \usage{
-cytof_heatmap(data, baseName = "Cluster", scaleMethod = "none")
+cytof_heatmap(data, baseName = "Cluster", scaleMethod = "none",
+  cex_row_label = NULL, cex_col_label = NULL)
 }
 \arguments{
 \item{data}{a matrix with rownames and colnames}
 
 \item{baseName}{The name as a prefix in the title of the heatmap.}
 
-\item{scaleMethod}{character indicating if the values should be centered and scaled in either the row direction or the column direction, or none. The default is 'none'.}
+\item{scaleMethod}{Method indicating if the values should be centered and scaled in either the row direction or the column direction, or none. The default is 'none'.}
+
+\item{cex_row_label}{Text size for row labels.}
+
+\item{cex_col_label}{Text size for column labels.}
 }
 \value{
 a heatmap object from \code{gplots}

@@ -11,6 +11,9 @@ scaleData(x, range = c(0, 4.5))
 
 \item{range}{The range of the data.}
 }
+\value{
+scaled data
+}
 \description{
 rescale the data
 }

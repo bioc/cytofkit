@@ -3,7 +3,7 @@
 \docType{package}
 \name{cytofkit-package}
 \alias{cytofkit-package}
-\title{cytofkit: an integrated analysis pipeline for mass cytometry data}
+\title{cytofkit: an integrated mass cytometry data analysis pipeline}
 \description{
 This package is designed to facilitate the analysis workflow of mass cytometry data with 
 automatic subset identification and mapping of cellular progression. Both command line and 
@@ -11,17 +11,17 @@ a GUI client are provided for executing the workflow easily.
 }
 \details{
 This package integrates merging methods of multiple FCS files, dimension reduction methods (PCA, t-SNE and ISOMAP) 
-and clustering methods (DensVM, densityClustX, and Rphenograph) for rapid subset detection. 
-Cell subsets can be visualized in scatter plot and heat map. The method isomap is also provided to map the cellular progression. 
+and clustering methods (DensVM, ClusterX, and Rphenograph) for rapid subset detection. Analysis reuslts can be visualized 
+and explored interactively using a specially designed shiny web APP, see \code{\link{cytofkitShinyAPP}}. Moreover, the method isomap is provided to map the cellular progression. 
 This workflow can be easily executed with the main function \code{\link{cytofkit}} or through the GUI client \code{\link{cytofkit_GUI}}.
 
 Pre-processing
 
 Using function \code{\link{cytof_exprsMerge}}, one or multiple FCS files will be loaded via the *read.FCS* 
 function in the *flowCore* package. Then transformation was applied to the expression value 
-of selected markers of each FCS file. Transformation methods include \code{auto_lgcl}, \code{fixed_lgcl}, 
-\code{arcsin} and \code{biexp}, where \code{auto_lgcl} is the default.Then mutilple FCS files are 
-merged using method \code{all}, \code{min}, \code{fixed} or \code{ceil}.
+of selected markers of each FCS file. Transformation methods include \code{cytofAsinh}, \code{autoLgcl}, 
+\code{logicle} and \code{arcsinh}, where \code{cytofAsinh} is the default.Then mutilple FCS files are 
+merged using one of the merging methods \code{all}, \code{min}, \code{fixed} or \code{ceil}.
 
 Dimensionality reduction
 
@@ -30,9 +30,10 @@ is suggested for dimensionality reduction although we also provide methods like 
 
 Cluster
 
-Using function \code{\link{cytof_cluster}}, three cluster method are provided, \code{densVM}, \code{ClusterX}
-and \code{Rphenograph}. \code{densVM}, \code{densityClustX} are performend on the dimension reducted data, while \code{Rphenograph}
-is peroformed directed on the high dimensional expression data.
+Using function \code{\link{cytof_cluster}}, three cluster method are provided, \code{DensVM}, \code{ClusterX} 
+\code{Rphenograph} and \code{FlowSOM}. \code{DensVM}, \code{densityClustX} are performend on the dimension reduced data, while \code{Rphenograph}
+works directed on the high dimensional expression data. Method \code{FlowSOM} is integrated from FlowSOM package 
+(https://bioconductor.org/packages/release/bioc/html/FlowSOM.html).
 
 Post-processing
 
@@ -60,11 +61,14 @@ dir <- system.file('extdata',package='cytofkit')
 file <- list.files(dir, pattern='.fcs$', full=TRUE)
 parameters <- list.files(dir, pattern='.txt$', full=TRUE)
 ## remove the hash symbol to run the following command
-#cytofkit(fcsFile = file, markers = parameters, projectName = 'test')   
+#cytofkit(fcsFile = file, markers = parameters)   
 
 ## Checking the vignettes for more details 
 if(interactive()) browseVignettes(package = 'cytofkit')
 
+}
+\author{
+Hao Chen, Jinmiao Chen
 }
 \references{
 \url{http://signbioinfo.github.io/cytofkit/}

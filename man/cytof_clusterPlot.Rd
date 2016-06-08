@@ -5,28 +5,31 @@
 \title{Scatter plot of the cluster results}
 \usage{
 cytof_clusterPlot(data, xlab, ylab, cluster, sample, title = "cluster",
-  type = 1, point_size = NULL, addLabel = TRUE, labelSize = 10)
+  type = 1, point_size = NULL, addLabel = TRUE, labelSize = 10,
+  sampleLabel = TRUE)
 }
 \arguments{
-\item{data}{The data frame of cluster results, which should contains at least xlab, ylab and cluster}
+\item{data}{The data frame of cluster results, which should contains at least xlab, ylab and cluster.}
 
-\item{xlab}{The column name of the x axis in input \code{data}}
+\item{xlab}{The column name of the x axis in input \code{data}.}
 
-\item{ylab}{The column name of the y axis in input \code{data}}
+\item{ylab}{The column name of the y axis in input \code{data}.}
 
-\item{cluster}{The column name of cluster in input \code{data}}
+\item{cluster}{The column name of cluster in input \code{data}.}
 
-\item{sample}{the column name of the sample in input \code{data}}
+\item{sample}{the column name of the sample in input \code{data}.}
 
-\item{title}{the title of the plot}
+\item{title}{the title of the plot.}
 
-\item{type}{plot type, 1 indicates combined plot, 2 indicated grid facet plot seperated by samples}
+\item{type}{plot type, 1 indicates combined plot, 2 indicated grid facet plot seperated by samples.}
 
 \item{point_size}{the size of the dot.}
 
 \item{addLabel}{Boolean, if add cluster labels.}
 
 \item{labelSize}{the size of cluster labels.}
+
+\item{sampleLabel}{If use point shapes to represent different samples.}
 }
 \value{
 the ggplot object of the scatter cluster plot.

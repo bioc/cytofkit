@@ -2,44 +2,55 @@
 % Please edit documentation in R/cytof_preProcess.R
 \name{cytof_exprsExtract}
 \alias{cytof_exprsExtract}
-\title{Extract the expression matrix of the FCS data}
+\title{Extract the expression data from a FCS file with preprocessing}
 \usage{
-cytof_exprsExtract(fcsFile, comp = FALSE, verbose = FALSE, markers = NULL,
-  transformMethod = "auto_lgcl", scaleTo = NULL, w = 0.1, t = 4000,
-  m = 4.5, a = 0, q = 0.05)
+cytof_exprsExtract(fcsFile, verbose = FALSE, comp = FALSE, markers = NULL,
+  transformMethod = c("cytofAsinh", "autoLgcl", "logicle", "arcsinh"),
+  scaleTo = NULL, q = 0.05, l_w = 0.1, l_t = 4000, l_m = 4.5,
+  l_a = 0, a_a = 1, a_b = 1, a_c = 0)
 }
 \arguments{
-\item{fcsFile}{The name of the FCS file}
+\item{fcsFile}{The name of the FCS file.}
 
-\item{comp}{Boolean value tells if do compensation}
+\item{verbose}{Boolean value detecides if print the massage details of FCS loading.}
 
-\item{verbose}{Boolean value detecides if print the massage details}
+\item{comp}{Either boolean value tells if do compensation (compensation matrix contained in FCS), or a compensation matrix to be applied.}
 
-\item{markers}{Selected markers for analysis, either from names or from description}
+\item{markers}{Selected markers for analysis, either marker names/descriptions or marker IDs.}
 
-\item{transformMethod}{transformation method, \code{auto_lgcl}, \code{fixed_lgcl}, \code{arcsin} or \code{biexp}}
+\item{transformMethod}{Data Transformation method, including \code{cytofAsinh} (suggest for CyTOF data), \code{autoLgcl} (suggest for FCM data), \code{logicle} and \code{arcsinh}.}
 
-\item{scaleTo}{scale the expression to same scale, default is NULL, should be a vector of two numbers if scale}
+\item{scaleTo}{Scale the expression to a specified range c(a, b), default is NULL.}
 
-\item{w}{Linearization width in asymptotic decades}
+\item{q}{quantile of negative values removed for auto w estimation, default is 0.05, parameter for autoLgcl transformation.}
 
-\item{t}{Top of the scale data value}
+\item{l_w}{Linearization width in asymptotic decades, parameter for logicle transformation.}
 
-\item{m}{Full width of the transformed display in asymptotic decades}
+\item{l_t}{Top of the scale data value, parameter for logicle transformation.}
 
-\item{a}{Additional negative range to be included in the display in asymptotic decades}
+\item{l_m}{Full width of the transformed display in asymptotic decades, parameter for logicle transformation.}
 
-\item{q}{quantile of negative values removed for auto w estimation, default is 0.05}
+\item{l_a}{Additional negative range to be included in the display in asymptotic decades, parameter for logicle transformation.}
+
+\item{a_a}{Positive double that corresponds to the base of the arcsinh transformation, \code{arcsinh} = asinh(a + b * x) + c).}
+
+\item{a_b}{Positive double that corresponds to a scale factor of the arcsinh transformation, \code{arcsinh} = asinh(a + b * x) + c).}
+
+\item{a_c}{Positive double that corresponds to another scale factor of the arcsinh transformation, \code{arcsinh} = asinh(a + b * x) + c).}
 }
 \value{
-The transformend expression data matrix with selected markers
+A transformend expression data matrix with selected markers, row names added as \code{filename_cellID}, column mamed added as \code{name<desc>}.
 }
 \description{
-Extract the FCS expresssion data and apply the transformation
+Extract the FCS expresssion data with preprocessing of compensation (for FCM data only)
+and transformation. Transformtion methods includes \code{cytofAsinh} (suggest for CyTOF data), 
+\code{autoLgcl} (suggest for FCM data), \code{logicle} (customizable) and \code{arcsinh} (customizable).
 }
 \examples{
-d<-system.file('extdata',package='cytofkit')
+d <- system.file('extdata',package='cytofkit')
 fcsFile <- list.files(d,pattern='.fcs$',full=TRUE)
-transformed <- cytof_exprsExtract(fcsFile)
+parameters <- list.files(d, pattern='.txt$', full=TRUE)
+markers <- as.character(read.table(parameters, sep = "\\t", header = TRUE)[, 1])
+transformed <- cytof_exprsExtract(fcsFile, markers = markers)
 }
 

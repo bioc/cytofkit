@@ -4,12 +4,15 @@
 \alias{applyComp}
 \title{apply compensation on the FCS expression data}
 \usage{
-applyComp(fcs, keyword)
+applyComp(fcs, compMatrix)
 }
 \arguments{
 \item{fcs}{FCS file.}
 
 \item{keyword}{Keywords.}
+}
+\value{
+compensated expression value
 }
 \description{
 apply compensation on the FCS expression data

@@ -178,16 +178,17 @@ cytof_writeResults <- function(analysis_results, projectName = "cytofkit",
 #' Dot plot visualization of the cluster results, with color indicating different clusters, 
 #' and shape of different samples.
 #' 
-#' @param data The data frame of cluster results, which should contains at least xlab, ylab and cluster 
-#' @param xlab The column name of the x axis in input \code{data}
-#' @param ylab The column name of the y axis in input \code{data}
-#' @param cluster The column name of cluster in input \code{data}
-#' @param sample the column name of the sample in input \code{data}
-#' @param title the title of the plot
-#' @param type plot type, 1 indicates combined plot, 2 indicated grid facet plot seperated by samples
+#' @param data The data frame of cluster results, which should contains at least xlab, ylab and cluster.
+#' @param xlab The column name of the x axis in input \code{data}.
+#' @param ylab The column name of the y axis in input \code{data}.
+#' @param cluster The column name of cluster in input \code{data}.
+#' @param sample the column name of the sample in input \code{data}.
+#' @param title the title of the plot.
+#' @param type plot type, 1 indicates combined plot, 2 indicated grid facet plot seperated by samples.
 #' @param point_size the size of the dot.
 #' @param addLabel Boolean, if add cluster labels.
 #' @param labelSize the size of cluster labels.
+#' @param sampleLabel If use point shapes to represent different samples.
 #' @return the ggplot object of the scatter cluster plot.
 #' @export
 #' @importFrom ggplot2 element_text element_rect element_blank element_line element_text
@@ -202,7 +203,7 @@ cytof_writeResults <- function(analysis_results, projectName = "cytofkit",
 #' cytof_clusterPlot(data, xlab="dim1", ylab="dim2", cluster="cluster", sample = "sample")
 cytof_clusterPlot <- function(data, xlab, ylab, cluster, sample, 
                               title = "cluster", type = 1, point_size = NULL,
-                              addLabel=TRUE, labelSize=10) {
+                              addLabel=TRUE, labelSize=10, sampleLabel=TRUE) {
     
     if(!is.data.frame(data))
         data <- as.data.frame(data)
@@ -235,14 +236,24 @@ cytof_clusterPlot <- function(data, xlab, ylab, cluster, sample,
     }
     
     if(type == 1){
-        cp <- ggplot(data, aes_string(x = xlab, y = ylab, colour = cluster, shape = sample)) + 
-            geom_point(size = point_size) + scale_shape_manual(values = shape_value) + 
-            scale_colour_manual(values = rainbow(cluster_num)) + coord_fixed() +
-            xlab(xlab) + ylab(ylab) + ggtitle(paste(title, "scatter plot", sep = " ")) + 
-            theme_bw() + theme(legend.position = "bottom") + 
-            theme(axis.text=element_text(size=14), axis.title=element_text(size=18,face="bold")) +
-            guides(colour = guide_legend(nrow = col_legend_row, override.aes = list(size = 4)), 
-                   shape = guide_legend(nrow = size_legend_row, override.aes = list(size = 4)))
+        if(sampleLabel){
+            cp <- ggplot(data, aes_string(x = xlab, y = ylab, colour = cluster, shape = sample)) + 
+                geom_point(size = point_size) + scale_shape_manual(values = shape_value) + 
+                scale_colour_manual(values = rainbow(cluster_num)) + coord_fixed() +
+                xlab(xlab) + ylab(ylab) + ggtitle(paste(title, "scatter plot", sep = " ")) + 
+                theme_bw() + theme(legend.position = "bottom") + 
+                theme(axis.text=element_text(size=14), axis.title=element_text(size=18,face="bold")) +
+                guides(colour = guide_legend(nrow = col_legend_row, override.aes = list(size = 4)), 
+                       shape = guide_legend(nrow = size_legend_row, override.aes = list(size = 4)))
+        }else{
+            cp <- ggplot(data, aes_string(x = xlab, y = ylab, colour = cluster)) + 
+                geom_point(size = point_size) + scale_shape_manual(values = shape_value) + 
+                scale_colour_manual(values = rainbow(cluster_num)) + coord_fixed() +
+                xlab(xlab) + ylab(ylab) + ggtitle(paste(title, "scatter plot", sep = " ")) + 
+                theme_bw() + theme(legend.position = "bottom") + 
+                theme(axis.text=element_text(size=14), axis.title=element_text(size=18,face="bold")) +
+                guides(colour = guide_legend(nrow = col_legend_row, override.aes = list(size = 4)))
+        }
         
         if(addLabel){
             edata <- data[ ,c(xlab, ylab, cluster)]
@@ -275,7 +286,9 @@ cytof_clusterPlot <- function(data, xlab, ylab, cluster, sample,
 #' 
 #' @param data a matrix with rownames and colnames
 #' @param baseName The name as a prefix in the title of the heatmap.
-#' @param scaleMethod character indicating if the values should be centered and scaled in either the row direction or the column direction, or none. The default is 'none'.
+#' @param scaleMethod Method indicating if the values should be centered and scaled in either the row direction or the column direction, or none. The default is 'none'.
+#' @param cex_row_label Text size for row labels.
+#' @param cex_col_label Text size for column labels.
 #' @return a heatmap object from \code{gplots}
 #' @export
 #' @examples
@@ -292,19 +305,24 @@ cytof_clusterPlot <- function(data, xlab, ylab, cluster, sample,
 #' cluster_mean <- aggregate(. ~ cluster, data = exprs_cluster, mean)
 #' rownames(cluster_mean) <- paste("cluster_", cluster_mean$cluster, sep = "")
 #' cytof_heatmap(cluster_mean[, -which(colnames(cluster_mean) == "cluster")])
-cytof_heatmap <- function(data, baseName = "Cluster", scaleMethod = "none") {
+cytof_heatmap <- function(data, baseName = "Cluster", scaleMethod = "none",
+                          cex_row_label = NULL, cex_col_label = NULL) {
     
     data <- as.matrix(data)
     
-    cex_row_label <- (11 - ceiling(nrow(data)/10))/10
-    cex_col_label <- (11 - ceiling(ncol(data)/10))/10
-
+    if(is.null(cex_row_label)){
+        cex_row_label <- (11 - ceiling(nrow(data)/10))/10
+    }
+    if(is.null(cex_col_label)){
+        cex_col_label <- (11 - ceiling(ncol(data)/10))/10
+    }
+    
     heatmap.2(data, col = bluered, trace = "none", 
         symbreaks = FALSE, scale = scaleMethod, 
         cexRow = cex_row_label, 
         cexCol = cex_col_label, 
         srtCol = 90, symkey = FALSE, 
-        keysize = 1, key.par=list(mgp=c(2, 1, 0),mar=c(4, 3, 4, 0)),
+        key.par=list(mgp=c(1.5, 0.5, 0), mar=c(2.5, 2.5, 3, 1.5)), keysize = 1.3,
         main = paste(baseName, "heatmap", sep = " "))
 }
 
@@ -512,8 +530,8 @@ cytof_addToFCS <- function(data, rawFCSdir, analyzedFCSdir, transformed_cols = c
             channel_number <- nrow(pd) + 1
             channel_id <- paste("$P", channel_number, sep = "")
             channel_name <- addColName
-            minRange <- ceiling(min(to_add_i[[addColName]]))
-            maxRange <- ceiling(max(to_add_i[[addColName]]))
+            minRange <- ceiling(min(to_add_i[[j]]))
+            maxRange <- ceiling(max(to_add_i[[j]]))
             channel_range <- maxRange - minRange
             
             plist <- matrix(c(channel_name, "<NA>", channel_range, 
@@ -525,7 +543,7 @@ cytof_addToFCS <- function(data, rawFCSdir, analyzedFCSdir, transformed_cols = c
             
             ## update the expression value
             out_col_names <- colnames(sub_exprs)
-            sub_exprs <- cbind(sub_exprs, to_add_i[[addColName]])
+            sub_exprs <- cbind(sub_exprs, to_add_i[[j]])
             colnames(sub_exprs) <- c(out_col_names, addColName)
             
             ## update the description remove '\' in the keywords

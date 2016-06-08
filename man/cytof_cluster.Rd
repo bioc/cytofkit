@@ -4,28 +4,34 @@
 \alias{cytof_cluster}
 \title{Subset detection by clustering}
 \usage{
-cytof_cluster(ydata = NULL, xdata = NULL, method = "densVM")
+cytof_cluster(ydata = NULL, xdata = NULL, method = c("Rphenograph",
+  "ClusterX", "DensVM", "FlowSOM", "NULL"), FlowSOM_k = 40)
 }
 \arguments{
-\item{ydata}{a matrix of the dimension reduced(transformed) data}
+\item{ydata}{A matrix of the dimension reduced data.}
 
-\item{xdata}{a matrix of the expression data}
+\item{xdata}{A matrix of the expression data.}
 
-\item{method}{cluster method including \code{densVM}, \code{densityClustX} and \code{Rphenograph}.}
+\item{method}{Cluster method including \code{DensVM}, \code{densityClustX}, \code{Rphenograph} and \code{FlowSOM}.}
+
+\item{FlowSOM_k}{Number of clusters for meta clustering in FlowSOM.}
 }
 \value{
 a vector of the clusters assigned for each row of the ydata
 }
 \description{
-Apply clustering algorithms to detect cell subsets. \code{densVM} and \code{ClusterX} clustering is 
-based on the transformend ydata; \code{Rphenograph} is directly applied on the high dimemnional xdata. And 
-\code{densVM} need the xdata to train the VM model.
+Apply clustering algorithms to detect cell subsets. \code{DensVM} and \code{ClusterX} 
+clustering is based on the transformend ydata and use xdata to train the model. 
+While \code{Rphenograph} directly works on the high dimemnional xdata. \code{FlowSOM} is 
+integrated from FlowSOM pacakge (https://bioconductor.org/packages/release/bioc/html/FlowSOM.html).
 }
 \examples{
 d<-system.file('extdata', package='cytofkit')
 fcsFile <- list.files(d, pattern='.fcs$', full=TRUE)
-xdata <- cytof_exprsMerge(fcsFile, mergeMethod = 'fixed', fixedNum = 100)
+parameters <- list.files(d, pattern='.txt$', full=TRUE)
+markers <- as.character(read.table(parameters, sep = "\\t", header = TRUE)[, 1])
+xdata <- cytof_exprsMerge(fcsFile, markers = markers, mergeMethod = 'fixed', fixedNum = 100)
 ydata <- cytof_dimReduction(xdata, method = "tsne")
-clusters <- cytof_cluster(ydata, xdata, method = "densVM")
+clusters <- cytof_cluster(ydata, xdata, method = "DensVM")
 }
 

@@ -136,15 +136,21 @@ shinyServer(function(input, output, session) {
         }   
     })
     
-    
-    
     ## xyz plot
     output$xyzPlot <- renderPlot({
         if(is.null(resObj()))
             return(NULL)
-        gp <- visuaPlot(resObj(), input$x_lab, input$y_lab, input$z_lab,
-                  input$pointSize, input$addLabel == TRUE, 
-                  input$labelSize, input$samples)
+        gp <- visuaPlot(obj = resObj(),
+                        xlab = input$x_lab, 
+                        ylab = input$y_lab, 
+                        zlab = input$z_lab,
+                        pointSize = input$pointSize,
+                        addLabel = input$addLabel,
+                        labelSize = input$labelSize,
+                        sampleLabel = input$sampleLabel,
+                        FlowSOM_k = input$FlowSOM_k, 
+                        selectSamples = input$samples, 
+                        removeOutlier = TRUE)
         plot(gp)
     }, height = 700, width = 750)
     

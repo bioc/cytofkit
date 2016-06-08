@@ -1,12 +1,12 @@
 library(shiny)
 
 shinyUI(fluidPage(
-    titlePanel("Interactive Visualization of Cytofkit Results"),
+    titlePanel("Interactive Visualization of cytofkit Results"),
     
     fluidRow(
         column(3,
                
-               fileInput('cytofkitObj', strong('Cytofkit RData:'), multiple = FALSE, 
+               fileInput('cytofkitObj', h4('cytofkit RData:'), multiple = FALSE, 
                          accept = c('text/RData', '.RData')),
                actionButton("goButton", "Submit!"),
                
@@ -16,6 +16,13 @@ shinyUI(fluidPage(
                hr(),
                h5("If Add Cluster Labels"),
                checkboxInput("addLabel", label = "Add Cluster Label", value = TRUE),
+               
+               hr(),
+               h5("If Label Sample by Shape"),
+               checkboxInput("sampleLabel", label = "Add Sample Label", value = TRUE),
+               
+               hr(),
+               numericInput("FlowSOM_k", h5("Choose FlowSOM cluster k"), value = 40),
                
                hr(),
                h4("Summary:"),

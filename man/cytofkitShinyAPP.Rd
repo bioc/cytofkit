@@ -12,4 +12,7 @@ Load the RData object saved by cytofkit, explore the analysis results with inter
 \examples{
 if (interactive()) cytofkit::cytofkitShinyAPP()
 }
+\author{
+Hao Chen
+}
 

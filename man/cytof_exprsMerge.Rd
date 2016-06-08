@@ -2,26 +2,24 @@
 % Please edit documentation in R/cytof_preProcess.R
 \name{cytof_exprsMerge}
 \alias{cytof_exprsMerge}
-\title{Merge the transformed expression data of FCS file(s) of selected markers}
+\title{Merge the expression matrix from multiple FCS files with preprocessing}
 \usage{
-cytof_exprsMerge(fcsFiles, comp = FALSE, verbose = FALSE, markers = NULL,
-  transformMethod = "auto_lgcl", scaleTo = NULL, mergeMethod = "ceil",
-  fixedNum = 10000, w = 0.1, t = 4000, m = 4.5, a = 0, q = 0.05)
+cytof_exprsMerge(fcsFiles, comp = FALSE, markers = NULL,
+  transformMethod = "cytofAsinh", scaleTo = NULL, mergeMethod = c("ceil",
+  "all", "fixed", "min"), fixedNum = 10000, ...)
 }
 \arguments{
-\item{fcsFiles}{the input fcsFiles (usually more than 1 file)}
+\item{fcsFiles}{A vector of FCS file names.}
 
-\item{comp}{Boolean value tells if do compensation}
+\item{comp}{Either boolean value tells if do compensation (compensation matrix contained in FCS), or a compensation matrix to be applied.}
 
-\item{verbose}{Boolean value detecides if print the massage details}
+\item{markers}{Selected markers for analysis, either marker names/descriptions or marker IDs.}
 
-\item{markers}{Selected markers for analysis, either from names or from description}
+\item{transformMethod}{Data Transformation method, including \code{cytofAsinh} (suggest for CyTOF data), \code{autoLgcl} (suggest for FCM data), \code{logicle} and \code{arcsinh}.}
 
-\item{transformMethod}{transformation method, \code{auto_lgcl}, \code{fixed_lgcl}, \code{arcsin} or \code{biexp}}
+\item{scaleTo}{Scale the expression to a specified range c(a, b), default is NULL.}
 
-\item{scaleTo}{scale the expression to same scale, default is NULL, should be a vector of two numbers if scale}
-
-\item{mergeMethod}{merge method for mutiple FCS expression data. cells can be combined using 
+\item{mergeMethod}{Merge method for mutiple FCS expression data. cells can be combined using 
 one of the four different methods including \code{ceil}, \code{all}, \code{min}, \code{fixed}. 
 The default option is \code{ceil}, up to a fixed number (specified by \code{fixedNum}) of cells are sampled 
 without replacement from each fcs file and combined for analysis.
@@ -30,29 +28,26 @@ without replacement from each fcs file and combined for analysis.
 \code{fixed}: a fixed num (specified by fixedNum) of cells are sampled (with replacement when the total number of cell is less than 
 fixedNum) from each fcs file and combined for analysis.}
 
-\item{fixedNum}{the fixed number of cells for merging multiple FCSs}
+\item{fixedNum}{The fixed number of cells to be extracted from each FCS file.}
 
-\item{w}{Linearization width in asymptotic decades}
-
-\item{t}{Top of the scale data value}
-
-\item{m}{Full width of the transformed display in asymptotic decades}
-
-\item{a}{Additional negative range to be included in the display in asymptotic decades}
-
-\item{q}{quantile of negative values removed for auto w estimation, default is 0.05}
+\item{...}{Other arguments passed to \code{cytof_exprsExtract}}
 }
 \value{
-Merged FCS expression data matrix of selected markers after transformation
+A matrix containing the merged expression data, with selected markers, row names added as \code{filename_cellID}, column mamed added as \code{name<desc>}.
 }
 \description{
-Apply transformation of selected markers of each FCS file, arcsin, biexponential, auto logicle
-transformation and fixed logicle transformation are provided, then mutilple 
-FCS files are merged using method \code{all}, \code{min}, \code{fixed} or \code{ceil}
+Apply preprocessing on each FCS file including compensation (for FCM data only) and transformation
+with selected markers, then expression matrix are extracted and merged using one of the methods, 
+\code{all}, \code{min}, \code{fixed} or \code{ceil}
 }
 \examples{
 d<-system.file('extdata',package='cytofkit')
 fcsFiles <- list.files(d,pattern='.fcs$',full=TRUE)
-merged <- cytof_exprsMerge(fcsFiles)
+parameters <- list.files(d, pattern='.txt$', full=TRUE)
+markers <- as.character(read.table(parameters, sep = "\\t", header = TRUE)[, 1])
+merged <- cytof_exprsMerge(fcsFiles, markers = markers)
+}
+\seealso{
+\code{\link{cytof_exprsExtract}}
 }
 

@@ -5,14 +5,15 @@
 \title{Fast clustering by automaticly search and find of density peaks}
 \usage{
 ClusterX(data, dimReduction = NULL, outDim = 2, dc, gaussian = TRUE,
-  alpha = 0.001, detectHalos = FALSE, parallel = FALSE, nCore = 4)
+  alpha = 0.001, detectHalos = FALSE, SVMhalos = FALSE,
+  parallel = FALSE, nCore = 4)
 }
 \arguments{
 \item{data}{A data matrix for clustering.}
 
 \item{dimReduction}{Dimenionality reduciton method.}
 
-\item{outDim}{Number of dimensions will be used.}
+\item{outDim}{Number of dimensions will be used for clustering.}
 
 \item{dc}{Distance cutoff value.}
 
@@ -27,12 +28,16 @@ ClusterX(data, dimReduction = NULL, outDim = 2, dc, gaussian = TRUE,
 \item{nCore}{Number of cores umployed for parallel compution.}
 }
 \value{
-a object of \code{ClusterX} class
+a list
 }
 \description{
 This package implement the clustering algorithm described by Alex Rodriguez
-and Alessandro Laio (2014) with improvements of automatic peak detection and 
+and Alessandro Laio (2014) with improvements of automatic peak detection and
 parallel implementation
+}
+\details{
+ClusterX works on low dimensional data analysis (Dimensionality less than 5).
+If input data is of high diemnsional, t-SNE is conducted to reduce the dimensionality.
 }
 \examples{
 iris_unique <- unique(iris) # Remove duplicates

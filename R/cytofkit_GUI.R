@@ -5,14 +5,14 @@
 #' and each parameter has a help button to show the instruction. 
 #' \code{cytofkit} analysis will be launched after submitting.
 #' 
-#' @author Chen Jinmiao, Chen Hao
+#' @author Hao Chen
 #' @return the GUI for \code{cytofkit-package}
 #' @import tcltk
 #' @export
 #' @seealso \code{\link{cytofkit-package}}, \code{\link{cytofkit}}
 #' @references \url{http://signbioinfo.github.io/cytofkit/}
 #' @examples
-#' #cytofkit_GUI()  # remove the comment hash to run
+#' #cytofkit_GUI()  # remove the hash symbol to run
 cytofkit_GUI <- function() {
     
     ##--------------------------##
@@ -22,8 +22,9 @@ cytofkit_GUI <- function() {
     fcsFiles <- ""
     cur_dir <- getwd()
     mergeMethods <- c("all", "min", "ceil", "fixed")
+    transformMethods <- c("cytofAsinh", "autoLgcl")
     vizMethods <- c("pca", "isomap", "tsne", "NULL")
-    clusterMethods <- c("densVM", "Rphenograph", "NULL")  # "ClusterX", 
+    clusterMethods <- c("Rphenograph", "ClusterX", "DensVM", "NULL")
     
     rawFCSdir <- tclVar(cur_dir)
     fcsFile <- tclVar("")
@@ -32,7 +33,7 @@ cytofkit_GUI <- function() {
     mergeMethod <- tclVar("ceil")
     fixedNum <- tclVar("10000")
     markers <- tclVar("")
-    transformMethod <- tclVar("tsne")
+    transformMethod <- tclVar("cytofAsinh")
     progressionMethod <- tclVar("NULL")
     
     clusterSelect <- c()
@@ -43,7 +44,7 @@ cytofkit_GUI <- function() {
         tclvalue(clusterSelect[i]) <- "0"
         i <- i + 1
     }
-    tclvalue(clusterSelect[2]) <- "1"  # default densVM
+    tclvalue(clusterSelect[1]) <- "1"  # default Rphenograph
     
     vizSelect <- c()
     i <- 1
@@ -94,7 +95,7 @@ cytofkit_GUI <- function() {
     reset_para_data <- function() {
         
         if (tclvalue(fcsFile) == "" && tclvalue(rawFCSdir) == "") {
-            tkmessageBox(title = "cytofkit: an integrated analysis pipeline for mass cytometry data", 
+            tkmessageBox(title = "cytofkit: an integrated mass cytometry data analysis pipeline", 
                 message = "Please input your \"rawFCSdirectory\" or \"fcsFile\".", 
                 icon = "info", type = "ok")
         }
@@ -149,12 +150,12 @@ cytofkit_GUI <- function() {
     
     
     transformMethod_help <- function() {
-        tkmessageBox(title = "dimReductionMethod", message = "The method used for dimensionality reduction, including \"pca\", \"isomap\", \"tsne\". \n\nIf \"NULL\" was selected, no dimension reduction will be performed.", 
+        tkmessageBox(title = "transformationMethod", message = "Data Transformation method, including \"cytofAsinh\" (suggest for CyTOF data) and \"autoLgcl\" (suggest for FCM data).", 
             icon = "info", type = "ok")
     }
     
     cluster_help <- function() {
-        tkmessageBox(title = "clusterMethods", message = "The method(s) for clustering, including \"densVM\", \"ClusterX\", \"Rphenograph\". \n\nIf \"NULL\" was selected, no clustering will be performed.", 
+        tkmessageBox(title = "clusterMethods", message = "The method(s) for clustering, including \"DensVM\", \"ClusterX\", \"Rphenograph\". \n\nIf \"NULL\" was selected, no clustering will be performed.", 
             icon = "info", type = "ok")
     }
     
@@ -181,7 +182,7 @@ cytofkit_GUI <- function() {
         tclvalue(mergeMethod) = mergeMethods[3]
         tclvalue(fixedNum) = "10000"
         tclvalue(markers) = ""
-        tclvalue(transformMethod) = "tsne"
+        tclvalue(transformMethod) = "cytofAsinh"
         tclvalue(clusterSelect[1]) = "0"
         tclvalue(clusterSelect[2]) = "1"
         tclvalue(clusterSelect[3]) = "0"
@@ -289,27 +290,23 @@ cytofkit_GUI <- function() {
                    width = 9), side = "right")
     tkpack(tklabel(merge_method_rbuts, text = "Fixed Number :"), 
         side = "right")
-    tkpack(tklabel(merge_method_rbuts, text = "                 "), side = "left")
-    #tkpack(tklabel(merge_method_rbuts, text = "                "), side = "left")
+    tkpack(tklabel(merge_method_rbuts, text = "                 "), 
+        side = "left")
     fixedNum_hBut <- tkbutton(tt, image = image2, command = fixedNum_help)
     
     ## transformMethod
-#     transformMethod_label <- tklabel(tt, text = "Dimention Reduction :")
-#     transformMethod_hBut <- tkbutton(tt, text = "i", width = hb_width, 
-#         command = transformMethod_help)
-#     transformMethod_rbuts <- tkframe(tt)
-#     tkpack(tklabel(transformMethod_rbuts, text = ""), side = "left")
-#     tkpack(tkradiobutton(transformMethod_rbuts, text = "pca", variable = transformMethod, 
-#         value = "pca"), side = "left")
-#     tkpack(tkradiobutton(transformMethod_rbuts, text = "isomap", 
-#         variable = transformMethod, value = "isomap"), side = "left")
-#     tkpack(tkradiobutton(transformMethod_rbuts, text = "tsne", 
-#         variable = transformMethod, value = "tsne"), side = "left")
-#     tkpack(tkradiobutton(transformMethod_rbuts, text = "NULL", 
-#         variable = transformMethod, value = "NULL"), side = "left")
+    transformMethod_label <- tklabel(tt, text = "Transformation Method :")
+    transformMethod_hBut <- tkbutton(tt, image = image2,
+        command = transformMethod_help)
+    transformMethod_rbuts <- tkframe(tt)
+    tkpack(tklabel(transformMethod_rbuts, text = ""), side = "left")
+    tkpack(tkradiobutton(transformMethod_rbuts, text = transformMethods[1], 
+        variable = transformMethod, value = transformMethods[1]), side = "left")
+    tkpack(tkradiobutton(transformMethod_rbuts, text = transformMethods[2],
+        variable = transformMethod, value = transformMethods[2]), side = "left")
     
     ## cluster method
-    cluster_label <- tklabel(tt, text = "Cluster Method(s):")
+    cluster_label <- tklabel(tt, text = "Cluster Method(s) :")
     cluster_hBut <- tkbutton(tt, image = image2, command = cluster_help)
     
     clusterMethods_cbuts <- tkframe(tt)
@@ -388,11 +385,11 @@ cytofkit_GUI <- function() {
     tkgrid.configure(merge_method_rbuts, sticky = "w")
     tkgrid.configure(fixedNum_hBut, sticky = "w")
     
-#     tkgrid(transformMethod_label, transformMethod_hBut, transformMethod_rbuts, 
-#         padx = cell_width)
-#     tkgrid.configure(transformMethod_label, sticky = "e")
-#     tkgrid.configure(transformMethod_rbuts, sticky = "w")
-#     tkgrid.configure(transformMethod_hBut, sticky = "e")
+    tkgrid(transformMethod_label, transformMethod_hBut, transformMethod_rbuts,
+        padx = cell_width)
+    tkgrid.configure(transformMethod_label, sticky = "e")
+    tkgrid.configure(transformMethod_rbuts, sticky = "w")
+    tkgrid.configure(transformMethod_hBut, sticky = "e")
     
     tkgrid(cluster_label, cluster_hBut, clusterMethods_cbuts, padx = cell_width)
     tkgrid.configure(cluster_label, sticky = "e")
@@ -451,46 +448,31 @@ cytofkit_GUI <- function() {
         inputs[["markers"]] <- parameters
         inputs[["mergeMethod"]] <- tclvalue(mergeMethod)
         inputs[["fixedNum"]] <- suppressWarnings(as.numeric(tclvalue(fixedNum)))
+        inputs[["transformMethod"]] <- tclvalue(transformMethod)
         inputs[["dimReductionMethod"]] <- "tsne"
-        
-        ## transform charater "NULL" to NULL
-        if("NULL" %in% clusterMethods[clusterCheck]){
-            inputs[["clusterMethods"]] <- NULL
-        }else{
-            inputs[["clusterMethods"]] <- clusterMethods[clusterCheck]
-        }
-        
-        if("NULL" %in% vizMethods[vizCheck]){
-            inputs[["visualizationMethods"]] <- NULL
-        }else{
-            inputs[["visualizationMethods"]] <- vizMethods[vizCheck]
-        }
-        
-        if(tclvalue(progressionMethod) == "NULL"){
-            inputs[["progressionMethod"]] <- NULL
-        }else{
-            inputs[["progressionMethod"]] <- tclvalue(progressionMethod)
-        }
-        
+        inputs[["clusterMethods"]] <- clusterMethods[clusterCheck]
+        inputs[["visualizationMethods"]] <- vizMethods[vizCheck]
+        inputs[["progressionMethod"]] <- tclvalue(progressionMethod)
         inputs[["projectName"]] <- tclvalue(projectName)
         inputs[["resultDir"]] <- tclvalue(resDir)
         
         
-        ## pass the parameters and run the cytof_tsne_densvm function
+        ## pass the parameters and run the cytofkit function
         cytofkit(fcsFiles = inputs[["fcsFiles"]], 
                  markers = inputs[["markers"]],
                  projectName = inputs[["projectName"]], 
                  mergeMethod = inputs[["mergeMethod"]], 
                  fixedNum = inputs[["fixedNum"]], 
-                 transformMethod = "auto_lgcl", 
-                 dimReductionMethod = "tsne", 
+                 transformMethod = inputs[["transformMethod"]], 
+                 dimReductionMethod = inputs[["dimReductionMethod"]], 
                  clusterMethods = inputs[["clusterMethods"]], 
                  visualizationMethods = inputs[["visualizationMethods"]], 
                  progressionMethod = inputs[["progressionMethod"]], 
                  uniformClusterSize = 500,
                  resultDir = inputs[["resultDir"]], 
-                 saveResults = TRUE, saveObject = TRUE, saveToFCS = TRUE,
-                 scaleTo = NULL, q = 0.05)
+                 saveResults = TRUE, 
+                 saveObject = TRUE, 
+                 saveToFCS = TRUE)
         
         okMessage <- paste0("Analysis Done, results are saved under ",
                             inputs[["resultDir"]])

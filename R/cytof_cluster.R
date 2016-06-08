@@ -1,36 +1,51 @@
 #' Subset detection by clustering
 #' 
-#' Apply clustering algorithms to detect cell subsets. \code{densVM} and \code{ClusterX} clustering is 
-#' based on the transformend ydata; \code{Rphenograph} is directly applied on the high dimemnional xdata. And 
-#' \code{densVM} need the xdata to train the VM model.
+#' Apply clustering algorithms to detect cell subsets. \code{DensVM} and \code{ClusterX} 
+#' clustering is based on the transformend ydata and use xdata to train the model. 
+#' While \code{Rphenograph} directly works on the high dimemnional xdata. \code{FlowSOM} is 
+#' integrated from FlowSOM pacakge (https://bioconductor.org/packages/release/bioc/html/FlowSOM.html).
 #' 
-#' @param ydata a matrix of the dimension reduced(transformed) data
-#' @param xdata a matrix of the expression data
-#' @param method cluster method including \code{densVM}, \code{densityClustX} and \code{Rphenograph}.
+#' @param ydata A matrix of the dimension reduced data.
+#' @param xdata A matrix of the expression data.
+#' @param method Cluster method including \code{DensVM}, \code{densityClustX}, \code{Rphenograph} and \code{FlowSOM}.
+#' @param FlowSOM_k Number of clusters for meta clustering in FlowSOM.
+#' 
 #' @return a vector of the clusters assigned for each row of the ydata
 #' @export
 #' @examples
 #' d<-system.file('extdata', package='cytofkit')
 #' fcsFile <- list.files(d, pattern='.fcs$', full=TRUE)
-#' xdata <- cytof_exprsMerge(fcsFile, mergeMethod = 'fixed', fixedNum = 100)
+#' parameters <- list.files(d, pattern='.txt$', full=TRUE)
+#' markers <- as.character(read.table(parameters, sep = "\t", header = TRUE)[, 1])
+#' xdata <- cytof_exprsMerge(fcsFile, markers = markers, mergeMethod = 'fixed', fixedNum = 100)
 #' ydata <- cytof_dimReduction(xdata, method = "tsne")
-#' clusters <- cytof_cluster(ydata, xdata, method = "densVM")
-cytof_cluster <- function(ydata = NULL, xdata = NULL, method = "densVM") {
+#' clusters <- cytof_cluster(ydata, xdata, method = "DensVM")
+cytof_cluster <- function(ydata = NULL, 
+                          xdata = NULL, 
+                          method = c("Rphenograph", "ClusterX", "DensVM", "FlowSOM", "NULL"),
+                          FlowSOM_k = 40){
     
-    if(method == "densVM"){
-        cat("  DensVM...")
-        clusters <- densVM(ydata, xdata)$cluster$cluster
-    } else if (method == "ClusterX"){
-        cat("  ClusterX...")
-        clusters <- ClusterX(ydata, gaussian=TRUE, alpha = 0.001, detectHalos = FALSE)$cluster
-    } else if(method == "Rphenograph"){
-        cat("  PhenoGraph...")
-        clusters <- as.numeric(membership(Rphenograph(xdata, k=30)))
-    } else if(is.null(method)){
+    method = match.arg(method)
+    if(method == "NULL"){
         return(NULL)
-    } else{
-        stop("clusterMethod [",method,"] doesn't exist in cytofkit!")
     }
+    switch(method, 
+           Rphenograph = {
+               cat("  Runing PhenoGraph...")
+               clusters <- as.numeric(membership(Rphenograph(xdata, k=30)))
+           },
+           ClusterX = {
+               cat("  Runing ClusterX...")
+               clusters <- ClusterX(ydata, gaussian=TRUE, alpha = 0.001, detectHalos = FALSE)$cluster
+           },
+           DensVM = {
+               cat("  Runing DensVM...")
+               clusters <- DensVM(ydata, xdata)$cluster$cluster
+           },
+           FlowSOM = {
+               cat("  Runing FlowSOM...")
+               clusters <- FlowSOM_integrate2cytofkit(xdata, FlowSOM_k)
+           })
     
     if( length(clusters) != ifelse(is.null(ydata), nrow(xdata), nrow(ydata)) ){
         message("Cluster is not complete, cluster failed, try other cluster method!")
@@ -46,3 +61,13 @@ cytof_cluster <- function(ydata = NULL, xdata = NULL, method = "densVM") {
     }
 }
 
+
+#' FlowSOM algorithm
+#' @import FlowSOM
+FlowSOM_integrate2cytofkit <- function(xdata, k, ...){
+    cat("    Building SOM...\n")
+    map <- FlowSOM:::SOM(xdata, silent = TRUE, ...)
+    cat("    Meta clustering to", k, "clusters...\n")
+    metaCluster <- suppressMessages(FlowSOM::metaClustering_consensus(map$codes, k = k))
+    cluster <- metaCluster[map$mapping[,1]]
+}

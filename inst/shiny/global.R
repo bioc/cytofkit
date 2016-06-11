@@ -1,8 +1,8 @@
-
-library(ggplot2)
-library(gplots)
-library(reshape2)
-library(reshape)
+## loading pacakge
+require(ggplot2)
+require(gplots)
+require(reshape2)
+require(reshape)
 library(plyr)
 library(VGAM)
 library(FlowSOM)
@@ -11,11 +11,14 @@ library(FlowSOM)
 ## visualization and interpretation of cytometry data. 
 ## http://www.r-project.org, http://dambi.ugent.be.
 
-#' @import FlowSOM
+# FlowSOM algorithm
 FlowSOM_integrate2cytofkit <- function(xdata, k, ...){
-    map <- FlowSOM:::SOM(xdata, silent = TRUE, ...)
-    metaCluster <- suppressMessages(FlowSOM::metaClustering_consensus(map$codes, k = k))
-    cluster <- metaCluster[map$mapping[,1]]
+    cat("    Building SOM...\n")
+    xdata <- as.matrix(xdata)
+    map <- SOM(xdata, silent = TRUE, ...)
+    cat("    Meta clustering to", k, "clusters...\n")
+    metaClusters <- suppressMessages(metaClustering_consensus(map$codes, k = k))
+    cluster <- metaClusters[map$mapping[,1]]
 }
 
 

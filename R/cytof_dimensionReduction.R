@@ -69,6 +69,10 @@ cytof_dimReduction <- function(data,
                if(is.null(ord)){
                    mapped <- NULL
                }else{
+                   if(nrow(ord$points) != nrow(data)){
+                       message("Run ISOMAP failed!")
+                       return(NULL)
+                   }
                    mapped <- ord$points
                }
            })

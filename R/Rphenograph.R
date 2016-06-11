@@ -95,13 +95,9 @@ Rphenograph <- function(data, k=30){
 #' 
 #' @return a n-by-k matrix of neighbor indices
 #' 
-#' @examples
-#' iris_unique <- unique(iris) # Remove duplicates
-#' data <- as.matrix(iris_unique[,1:4])
-#' neighbors <- find_neighbors(data, k=10)
+#' @noRd
 #' 
 #' @importFrom RANN nn2
-#' @export
 find_neighbors <- function(data, k){
     nearest <- nn2(data, data, k, treetype = "bd", searchtype = "standard")
     return(nearest[[1]])

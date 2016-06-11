@@ -210,7 +210,8 @@ cytof_exprsExtract <- function(fcsFile,
 #' apply compensation on the FCS expression data
 #' 
 #' @param fcs FCS file.
-#' @param keyword Keywords.
+#' @param compMatrix Compensation matrix.
+#' @noRd
 #' @return compensated expression value
 applyComp <- function(fcs, compMatrix) {
     comp_fcs <- compensate(fcs, compMatrix)
@@ -220,6 +221,7 @@ applyComp <- function(fcs, compMatrix) {
 #' 
 #' @param x data.
 #' @param range The range of the data.
+#' @noRd
 #' @return scaled data
 scaleData <- function(x, range = c(0, 4.5)) {
     (x - min(x))/(max(x) - min(x)) * (range[2] - range[1]) + range[1]
@@ -233,6 +235,7 @@ scaleData <- function(x, range = c(0, 4.5)) {
 #' 
 #' @param value A vector of numeric values.
 #' @param cofactor Cofactor for asinh transformation, default 5 for mass cytometry data.
+#' @noRd
 #' @return transformed value
 cytofAsinh <- function(value, cofactor = 5) {
     value <- value-1
@@ -252,6 +255,8 @@ cytofAsinh <- function(value, cofactor = 5) {
 #' @param channels Channel names.
 #' @param m Para m.
 #' @param q Para q.
+#' @importFrom methods is
+#' @noRd
 #' @return a list of transformations
 autoLgcl <- function(x, channels, m = 4.5, q = 0.05) {
     if (!is(x, "flowFrame")) 

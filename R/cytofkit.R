@@ -110,7 +110,6 @@ NULL
 #' @param saveResults If save the results, and the post-processing results including scatter plot, heatmap, and statistical results.
 #' @param saveObject Save the resutls into RData objects for loading back to R for further analysis
 #' @param saveToFCS Save the results back to the FCS files, new FCS files will be generated.
-#' @param scaleTo Scale the expression values to the same scale after transformation, default is NULL, should be a vector of two numbers if scale.
 #' @param ... Other arguments passed to \code{cytof_exprsExtract}
 #' 
 #' @return a list containing \code{expressionData}, \code{dimReductionMethod}, \code{visualizationMethods}, \code{dimReducedRes}, \code{clusterRes}, \code{progressionRes} and \code{allExpressionData}. If choose 'saveResults = TRUE', results will be saved into files under \code{resultDir}.

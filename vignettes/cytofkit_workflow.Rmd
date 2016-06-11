@@ -45,8 +45,7 @@ The subset detection is performed by clustering algorithms. **cytofkit** is ship
 state-of-the-art clustering methods *DensVM* and *PhenoGraph* and an in-house developed clustering 
 algorithm *ClusterX*. Among them, *DensVM* and *ClusterX* are density-based clustering algorithms 
 estimated from the *t-SNE* embedded map. While *PhenoGraph* is a graph based clustering algorithm 
-performed directly on the high dimensional data. Check the function `cytof_cluster` for 
-implementation of this step.
+performed directly on the high dimensional data. For version later than 1.4.4, we plugged in the *FlowSOM* clustering algorithm [5]. Check the function `cytof_cluster` for implementation of this step.
 
 ```{r, eval=FALSE}
 ?cytof_cluster
@@ -82,7 +81,7 @@ estimation based on the detected subsets of cells.  Specifically, we down sample
 cells to a fixed number for each cell subset, thus to make every subset has the equal number of 
 cells. This removes the potential dominant influence from cell subtypes with most number of 
 cells. Then *ISOMAP* is used to infer the relationships among the down sampled subsets. *ISOMAP* is 
-able to compare the overall relatedness of cells and embed the cells taking into account the nonlinear geodesic distances between cells. By plotting the marker expression along the *ISOMAP* dimension 1 or dimension 2 with lowess regression, markers with expression pattern that highly correlated with progression can be defined as regulatory markers. Check the function `cytof_progression` for implementation of this step.
+able to compare the overall relatedness of cells and embed the cells taking into account the nonlinear geodesic distances between cells. By plotting the marker expression along the *ISOMAP* dimension 1 or dimension 2 with lowess regression, markers with expression patterns that highly correlated with progression can be defined as regulatory markers. Check the function `cytof_progression` for implementation of this step.
 
 ```{r, eval=FALSE}
 ?cytof_progression
@@ -109,3 +108,4 @@ Among the saved results, an R data object will be saved with suffix of *.RData*,
 
 [4] Maaten L Van Der. Accelerating t-SNE using Tree-Based Algorithms. J Mach Learn Res. 2014;15: 1-21.
 
+[5] Van Gassen S, Callebaut B, Van Helden MJ, Lambrecht BN, Demeester P, Dhaene T, et al. FlowSOM: Using Self-Organizing Maps for Visualization and Interpretation of Cytometry Data. Cytometry A. 2015; 1-10. doi:10.1002/cyto.a.22625

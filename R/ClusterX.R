@@ -14,6 +14,7 @@
 #' @param gaussian If apply gaussian to esitmate the density.
 #' @param alpha Signance level for peak detection.
 #' @param detectHalos If detect the halos.
+#' @param SVMhalos Run SVM on cores to assign halos.
 #' @param parallel If run the algorithm in parallel.
 #' @param nCore Number of cores umployed for parallel compution.
 #'
@@ -133,7 +134,8 @@ ClusterX <- function(data,
 #' @param sampleSize The size of the down-sampled data.
 #' @param neighborRateLow The lower bound of the neighbor rate (default 0.01).
 #' @param neighborRateHigh The upper bound of the neighbor rate (default 0.15).
-#'
+#' @noRd
+#' 
 #' @return A numeric value giving the estimated distance cutoff value.
 estimateDc <- function(data, sampleSize = 5000, neighborRateLow=0.01, neighborRateHigh=0.02) {
     data <- as.matrix(data)
@@ -179,7 +181,8 @@ estimateDc <- function(data, sampleSize = 5000, neighborRateLow=0.01, neighborRa
 #' @param dc A numeric value specifying the distance cutoff.
 #' @param gaussian Logical value decide if a gaussian kernel be used to estimate the density (defaults to TRUE).
 #' @param ifParallel A boolean decides if run parallelly
-#'
+#' @noRd
+#' 
 #' @return A vector of local density values with index matching the row names of data.
 localDensity <- function(data, dc, gaussian=FALSE, ifParallel = FALSE) {
     splitFactor <- splitFactorGenerator(nrow(data))
@@ -214,7 +217,8 @@ localDensity <- function(data, dc, gaussian=FALSE, ifParallel = FALSE) {
 #' @param data Numeric matrix of data or data frame.
 #' @param rho A vector of local density values as outputted by \code{localDensity}.
 #' @param ifParallel A boolean decides if run parallelly.
-#'
+#' @noRd
+#' 
 #' @return A list of distances to closest observation of higher density and the ID
 minDistToHigher <- function(data, rho, ifParallel = FALSE) {
     splitFactor <- splitFactorGenerator(nrow(data))
@@ -257,7 +261,8 @@ minDistToHigher <- function(data, rho, ifParallel = FALSE) {
 #' @param rho A vector of the local density, outout of \code{localDensity}
 #' @param delta A vector of distance to closest observation of higher density
 #' @param alpha The level of statistical significance for peak detection.
-#'
+#' @noRd
+#' 
 #' @return a vector containing the indexes of peaks
 peakDetect <- function(rho, delta, alpha = 0.001){
     
@@ -278,7 +283,8 @@ peakDetect <- function(rho, delta, alpha = 0.001){
 #' @param peakID A vector of the peak ID.
 #' @param higherID A vector of IDs of the nearest neighbor with higer density.
 #' @param rho A vector of the density values.
-#'
+#' @noRd
+#' 
 #' @return the cluster ID
 clusterAssign <- function(peakID, higherID, rho){
     
@@ -301,7 +307,8 @@ clusterAssign <- function(peakID, higherID, rho){
 #' @param cluster The assigned cluster labels.
 #' @param peakID The peak IDs.
 #' @param dc The distance cutoff value.
-#'
+#' @noRd
+#' 
 #' @return the boolean value indicating if the point belongs to halo
 haloDetect <- function(data, rho, cluster, peakID, dc){
     
@@ -348,7 +355,8 @@ splitFactorGenerator <- function(rowNum, colNum){
 #' @param max_anoms Maximal percentile of anomalies.
 #' @param alpha The level of statistical significance with which to accept or reject anomalies.
 #' @param direction Directionality of the anomalies to be detected. Options are: 'pos' | 'neg' | 'both'.
-#'
+#' @noRd
+#' 
 #' @return A vector containing indexes of the anomalies (outliers).
 detect_anoms_sd <- function(data, max_anoms=0.1, alpha = 0.01, direction='pos') {
     

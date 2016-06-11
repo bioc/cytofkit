@@ -29,7 +29,4 @@ data(iris)
 in_data <- iris[, 1:4]
 out_data <- cytof_progression(in_data, cluster = iris[,5], uniformClusterSize = 50)
 }
-\author{
-Chen Jinmiao
-}
 

@@ -1,8 +1,8 @@
 Package: cytofkit
 Type: Package
 Title: cytofkit: an integrated mass cytometry data analysis pipeline
-Version: 1.4.4
-Date: 2015-11-12
+Version: 1.4.5
+Date: 2016-06-08
 Author: Jinmiao Chen, Hao Chen
 Description: An integrated mass cytometry data analysis pipeline that enables
     simultaneous illustration of cellular diversity and progression.
@@ -34,7 +34,8 @@ Imports:
     doParallel,
     parallel,
     pdist,
-    FlowSOM,
+    methods,
+    FlowSOM(>= 1.4.0),
     igraph(>= 1.0.1),
     RANN(>= 2.5),
     Rcpp (>= 0.12.0)

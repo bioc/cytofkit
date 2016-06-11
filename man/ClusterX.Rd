@@ -23,6 +23,8 @@ ClusterX(data, dimReduction = NULL, outDim = 2, dc, gaussian = TRUE,
 
 \item{detectHalos}{If detect the halos.}
 
+\item{SVMhalos}{Run SVM on cores to assign halos.}
+
 \item{parallel}{If run the algorithm in parallel.}
 
 \item{nCore}{Number of cores umployed for parallel compution.}

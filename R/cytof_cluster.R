@@ -63,11 +63,18 @@ cytof_cluster <- function(ydata = NULL,
 
 
 #' FlowSOM algorithm
-#' @import FlowSOM
+#' 
+#' @param xdata Input data matrix.
+#' @param k Number of clusters.
+#' @param ... Other parameters passed to SOM.
+#' 
+#' @noRd
+#' @importFrom FlowSOM SOM metaClustering_consensus
 FlowSOM_integrate2cytofkit <- function(xdata, k, ...){
     cat("    Building SOM...\n")
-    map <- FlowSOM:::SOM(xdata, silent = TRUE, ...)
+    xdata <- as.matrix(xdata)
+    map <- SOM(xdata, silent = TRUE, ...)
     cat("    Meta clustering to", k, "clusters...\n")
-    metaCluster <- suppressMessages(FlowSOM::metaClustering_consensus(map$codes, k = k))
-    cluster <- metaCluster[map$mapping[,1]]
+    metaClusters <- suppressMessages(metaClustering_consensus(map$codes, k = k))
+    cluster <- metaClusters[map$mapping[,1]]
 }

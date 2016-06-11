@@ -231,20 +231,3 @@ kernalDensity <- function(ydata, width, height, sig_tol) {
 } 
 
 
-
-
-#' Plot varaition of peak nums with increasing gamma
-#' 
-#' @param peakdata a matrix of \code{peakdata} returned from \code{DensVM}
-#' @return a line graph of peak nums vs. increasing gamma
-#' 
-#' @examples
-#' x <- seq(0, 1, length.out = 20)
-#' y <- c(20:6, 6, 6, 5:3)
-#' peakdata <- data.frame(sig_range = x, numpeaks = y)
-#' peaksGamma_plot(peakdata)
-peaksGamma_plot <- function(peakdata) {
-    ggplot(data = peakdata, aes_string(x = "sig_range", y = "numpeaks")) + 
-        geom_line() + geom_point() + theme_bw() + xlab(expression(gamma)) + 
-        ylab("N_peaks") + ggtitle("Number of peaks with increasing bandwith(gamma)")
-}

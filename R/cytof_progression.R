@@ -9,7 +9,6 @@
 #' @param seed The seed for random down sample of the clusters.
 #' @return a list includes sampleData, sampleCluster and progressionData.
 #' 
-#' @author Chen Jinmiao
 #' @export
 #' @examples
 #' data(iris)

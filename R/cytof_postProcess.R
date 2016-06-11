@@ -14,6 +14,9 @@
 #' @importFrom reshape cast melt.data.frame
 #' @importFrom ggplot2 ggplot ggsave aes_string geom_line geom_point xlab ylab ggtitle theme_bw
 #' @importFrom flowCore write.FCS flowFrame inverseLogicleTransform
+#' @importFrom grDevices dev.off pdf rainbow
+#' @importFrom graphics par
+#' @importFrom utils read.table write.csv
 #' @export
 #' @seealso \code{\link{cytofkit}}
 #' @examples
@@ -191,7 +194,7 @@ cytof_writeResults <- function(analysis_results, projectName = "cytofkit",
 #' @param sampleLabel If use point shapes to represent different samples.
 #' @return the ggplot object of the scatter cluster plot.
 #' @export
-#' @importFrom ggplot2 element_text element_rect element_blank element_line element_text
+#' @importFrom ggplot2 element_text element_rect element_blank element_line element_text annotate
 #' @examples
 #' x <- c(rnorm(100, mean = 1), rnorm(100, mean = 3), rnorm(100, mean = 9))
 #' y <- c(rnorm(100, mean = 2), rnorm(100, mean = 8), rnorm(100, mean = 5))

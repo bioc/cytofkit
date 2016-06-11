@@ -58,8 +58,6 @@ fixedNum) from each fcs file and combined for analysis.}
 \item{saveToFCS}{Save the results back to the FCS files, new FCS files will be generated.}
 
 \item{...}{Other arguments passed to \code{cytof_exprsExtract}}
-
-\item{scaleTo}{Scale the expression values to the same scale after transformation, default is NULL, should be a vector of two numbers if scale.}
 }
 \value{
 a list containing \code{expressionData}, \code{dimReductionMethod}, \code{visualizationMethods}, \code{dimReducedRes}, \code{clusterRes}, \code{progressionRes} and \code{allExpressionData}. If choose 'saveResults = TRUE', results will be saved into files under \code{resultDir}.

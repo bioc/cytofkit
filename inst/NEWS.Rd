@@ -1,14 +1,54 @@
 \name{NEWS}
 \title{News for Package \pkg{cytofkit}}
 
+\section{Changes in version 1.4.6 (2016-06-14)}{
+  \subsection{MODIFICATION}{
+    \itemize{
+      \item concised the title in vignette, tiny modification
+      \item added missed halo variable in ClusterX
+      \item added transformation=FALSE in calling read.FCS function to avoid unexpected transformation for flow cytometry data.
+      \item changed cast from reshap to dcast from reshap2 in function cytof_writeResults
+      \item added projectName, rawFCSdir, resultDir entries in analysis_results object
+      \item modified parameters for cytof_writeResults, only need analysis_results object
+      \item replaced parameter uniformClusterSize in cytofkit to clusterSampleSize
+      
+    }
+  }
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item redesigned shiny APP, big updates on subset progression tab, support FlowSOM and Diffusion map running. Added save buttion.
+      \item rewrited most of the codes in function cytof_progression
+      \item added diffusionmap in cytof_progression, updated on GUI
+      \item added reverseOrder option in cytof_progressionPlot function
+      \item added clusterLabelSize option in cytof_progressionPlot function
+      \item added segmentSize option in cytof_progressionPlot function
+      \item added cluster filetering and addClusterLabel option in cytof_progressionPlot
+      \item added fixCoord option to function cytof_clusterPlot
+      \item added distMethod option in cytof_progression function
+      \item added distance calculation options in cytof_dimReduction
+      \item added tsneSeed in cytof_dimReduction for reproducible t-SNE results
+      \item added cytof_clusterStat and cytof_colorPlot function in cytof_postProcess
+      \item added a button on GUI to open the resultDir once the cytof_writeResults was done, cross platform.
+    }
+  }
+}
+
+\section{Changes in version 1.4.5 (2016-06-12)}{
+  \subsection{MODIFICATION}{
+    \itemize{
+      \item Solved examples runing bug on 1.4.4
+    }
+  }
+}
+
 \section{Changes in version 1.4.4 (2016-05-25)}{
   \subsection{MODIFICATION}{
     \itemize{
       \item use match.arg together with match to concise the codes
-      \item rename function auto_lgcl to autoLgcl
-      \item rename function densVM to DensVM
-      \item rename function distMethod to isomap_distMethod, more informative
-      \item change usage of apply to rowSums in ClusterX, much faster
+      \item renamed function auto_lgcl to autoLgcl
+      \item renamed function densVM to DensVM
+      \item renamed function distMethod to isomap_distMethod, more informative
+      \item changed usage of apply to rowSums in ClusterX, much faster
       \item ClusterX use RANN::nn2 to speedup core/halo detection
       \item apply binary search to speedup estimateDc in ClusterX, sample size is set to 5000 by default
       \item Modified the vignettes, applied BiocStyle format

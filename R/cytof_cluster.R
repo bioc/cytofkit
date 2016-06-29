@@ -19,7 +19,7 @@
 #' markers <- as.character(read.table(parameters, sep = "\t", header = TRUE)[, 1])
 #' xdata <- cytof_exprsMerge(fcsFile, markers = markers, mergeMethod = 'fixed', fixedNum = 100)
 #' ydata <- cytof_dimReduction(xdata, method = "tsne")
-#' clusters <- cytof_cluster(ydata, xdata, method = "DensVM")
+#' clusters <- cytof_cluster(ydata, xdata, method = "ClusterX")
 cytof_cluster <- function(ydata = NULL, 
                           xdata = NULL, 
                           method = c("Rphenograph", "ClusterX", "DensVM", "FlowSOM", "NULL"),
@@ -73,8 +73,28 @@ cytof_cluster <- function(ydata = NULL,
 FlowSOM_integrate2cytofkit <- function(xdata, k, ...){
     cat("    Building SOM...\n")
     xdata <- as.matrix(xdata)
-    map <- SOM(xdata, silent = TRUE, ...)
-    cat("    Meta clustering to", k, "clusters...\n")
-    metaClusters <- suppressMessages(metaClustering_consensus(map$codes, k = k))
-    cluster <- metaClusters[map$mapping[,1]]
+    
+    ord <- tryCatch({
+        map <- SOM(xdata, silent = TRUE, ...)
+        cat("    Meta clustering to", k, "clusters...\n")
+        metaClusters <- suppressMessages(metaClustering_consensus(map$codes, k = k))
+        cluster <- metaClusters[map$mapping[,1]]
+    }, error=function(cond) {
+        message("Run FlowSOM failed")
+        message("Here's the error message:")
+        message(cond)
+        return(NULL)
+    }) 
+    
+    if(is.null(ord)){
+        cluster <- NULL
+    }else{
+        if(length(ord) != nrow(xdata)){
+            message("Run FlowSOM failed!")
+            return(NULL)
+        }
+        cluster <- ord
+    }
+    
+    return(cluster)
 }

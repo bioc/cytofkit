@@ -1,6 +1,14 @@
 \name{NEWS}
 \title{News for Package \pkg{cytofkit}}
 
+\section{Changes in version 1.4.7 (2016-07-4)}{
+  \subsection{MODIFICATION}{
+    \itemize{
+      \item Concised the autoLgcl function
+    }
+  }
+}
+
 \section{Changes in version 1.4.6 (2016-06-14)}{
   \subsection{MODIFICATION}{
     \itemize{

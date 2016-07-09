@@ -1,7 +1,17 @@
 \name{NEWS}
 \title{News for Package \pkg{cytofkit}}
 
-\section{Changes in version 1.4.7 (2016-07-4)}{
+\section{Changes in version 1.4.8 (2016-07-08)}{
+  \subsection{MODIFICATION}{
+    \itemize{
+      \item Adjusted the windown width and height of getParameters_GUI() to fit long name of FCM data
+      \item debugged, set full.names = TRUE in getParameters_GUI() when fcsFile == NULL
+    }
+  }
+}
+
+
+\section{Changes in version 1.4.7 (2016-07-04)}{
   \subsection{MODIFICATION}{
     \itemize{
       \item Concised the autoLgcl function

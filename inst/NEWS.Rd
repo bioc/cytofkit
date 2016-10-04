@@ -1,6 +1,34 @@
 \name{NEWS}
 \title{News for Package \pkg{cytofkit}}
 
+\section{Changes in version 1.4.9 (2016-09-27)}{
+  \subsection{MODIFICATION}{
+    \itemize{
+      \item debug when w is negative in autoLgcl transformation, convert to logicle transformation in this case
+      \item modify the cytof_writeResults function to make it more robust.
+      \item set autoLgcl as the default transformation method.
+    }
+  }
+  
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item big updates on the layout of shinyAPP, functions categorized into four panels ("cluster", "marker", "sample", "progression")
+      \item added "group samples" function to relabel and group samples in sample panel
+      \item added subset precentage change plot in sample panel
+      \item added case checking of Nan of w in autoLgcl function
+      \item Added cluster filtering and cluster table on shinyAPP diffusionmap set up page
+      \item Added combined view of marker expression patten on scatter plot and marker expression trend on subset progression
+      \item Added stack density plot in Marker Plot
+      \item Added cluster annotation (Label Clusters) in Marker Plot
+      \item add none option for transformation method to support FCS files with data already transformed
+      \item add "Seperate Plot by Samples" on side panel, remove option "Label Samples by Shapes"
+      \item make sample filter works on subset progression panel, support plot labeld on grid plot 
+      \item add cytofkit plos computational biology paper in CITATION
+      }
+  }
+}
+
+
 \section{Changes in version 1.4.8 (2016-07-08)}{
   \subsection{MODIFICATION}{
     \itemize{

@@ -1,11 +1,24 @@
 \name{NEWS}
 \title{News for Package \pkg{cytofkit}}
 
+\section{Changes in version 1.4.10 (2016-10-05)}{
+  \subsection{MODIFICATION}{
+    \itemize{
+      \item corrected the citation title
+      \item added cluster filter in rateChange line plot in ShinyAPP
+      \item debugged the error of loading back exported RData file
+      \item updated the saving button, make it more robust. If cannot find FCS path, then doesn't save new FCS files
+      \item added progression indicator in shinyAPP
+    }
+  }
+}
+
+
 \section{Changes in version 1.4.9 (2016-09-27)}{
   \subsection{MODIFICATION}{
     \itemize{
       \item debug when w is negative in autoLgcl transformation, convert to logicle transformation in this case
-      \item modify the cytof_writeResults function to make it more robust.
+      \item modify the cytof_writeResults function to make it more robust, with several more saving options.
       \item set autoLgcl as the default transformation method.
     }
   }

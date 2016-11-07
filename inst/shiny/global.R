@@ -99,7 +99,7 @@ scatterPlot <- function(obj, plotMethod, plotFunction, pointSize=1,
 
 ## Facet wrap plot of marker exporession
 cytof_wrap_colorPlot <- function(data, xlab, ylab, markers, scaleMarker = FALSE,
-                            colorPalette = c("bluered", "topo", "heat", "terrain", "cm"), 
+                            colorPalette = c("bluered", "spectral", "heat"), 
                             pointSize=1, 
                             removeOutlier = TRUE){
     
@@ -143,17 +143,13 @@ cytof_wrap_colorPlot <- function(data, xlab, ylab, markers, scaleMarker = FALSE,
            bluered = {
                myPalette <- colorRampPalette(c("blue", "white", "red"))
            },
-           topo = {
-               myPalette <- colorRampPalette(topo.colors(50))
+           spectral = {
+               myPalette <- colorRampPalette(c("#5E4FA2", "#3288BD", "#66C2A5", "#ABDDA4", 
+                                               "#E6F598", "#FFFFBF", "#FEE08B", "#FDAE61", 
+                                               "#F46D43", "#D53E4F", "#9E0142"))
            },
            heat = {
                myPalette <- colorRampPalette(heat.colors(50))
-           },
-           terrain = {
-               myPalette <- colorRampPalette(terrain.colors(50))
-           },
-           cm = {
-               myPalette <- colorRampPalette(cm.colors(50))
            }
     )
     zlength <- nrow(data)

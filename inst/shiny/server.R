@@ -126,6 +126,10 @@ shinyServer(function(input, output, session) {
                                    data cannnot be saved to new copies of FCS files.", 
                                    "Please check path: ", v$data$rawFCSdir))
                 }
+                
+                ## NOTE: if samples are regrouped, then new FCS file cannot be saved
+                ## TODO: to make the saving more smart, pass parameters from shing app
+                ## to save configured PDF figures
                 incProgress(1/2, message = paste0("To ", v$data$resultDir))
                 analysis_results <<- v$data
                 cytof_writeResults(analysis_results,
@@ -563,12 +567,13 @@ shinyServer(function(input, output, session) {
                 v$sampleInfo$cellSample <- factor(sampleGroupNames[sampleMatchID])
             }
             
-            cellID_number <- do.call(c, regmatches(v$sampleInfo$cellID, 
+            cellID_number <- do.call(c, regmatches(v$sampleInfo$cellID,
                                                    gregexpr("_[0-9]*$", v$sampleInfo$cellID, perl=T)))
             
+            ## update reactive object v$sampleInfo
             ## newCellID = "sampleGroup" + "_cellID" + "globalID" to avoid dumplicates
             v$sampleInfo$newCellID <- paste0(as.character(v$sampleInfo$cellSample), 
-                                             cellID_number,
+                                             "_",
                                              1:length(cellID_number))
             
             
@@ -580,7 +585,7 @@ shinyServer(function(input, output, session) {
             ## update the project name
             v$data$projectName <- paste0(v$data$projectName, "_grouped_samples")
 
-            ## update reactive object v$sampleInfo
+            ## update v$data$progressionRes
             if(!is.null(v$data$progressionRes)){
                 sampleExpressData <- v$data$progressionRes$sampleData
                 row.names(sampleExpressData) <- v$sampleInfo$newCellID[match(row.names(sampleExpressData),

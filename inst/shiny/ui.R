@@ -111,7 +111,7 @@ shinyUI(fluidPage(
                                                 ),
                                                 column(3,
                                                        selectInput('colorPalette', label = "Color Palette:", 
-                                                                   choices = c("bluered", "topo", "heat", "terrain", "cm"), 
+                                                                   choices = c("bluered", "spectral", "heat"), 
                                                                    selected = "bluered", width = "100%")
                                                 )
                                             ),

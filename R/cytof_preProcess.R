@@ -181,11 +181,16 @@ cytof_exprsExtract <- function(fcsFile,
         marker_id <- setdiff(seq_along(colnames(fcs@exprs)), exclude_channels)
     }
     
-    ## Identify markers doesn't need transformation
-    ## "FSC-x", "SSC-x"
+    ## Identify "FSC-x", "SSC-x" markers
     noTrans_channels <- grep("FSC|SSC", colnames(fcs@exprs), ignore.case = TRUE)
     transMarker_id <- setdiff(marker_id, noTrans_channels)
    
+    ## apply linear transformation for the "FSC-x", "SSC-x" channel if exists
+    if(length(noTrans_channels) > 0){
+        exprs[,noTrans_channels] <- apply(exprs[,noTrans_channels], 2, 
+                                          function(x) scaleData(x, range=c(0, 4.5)))
+    }
+    
     ## exprs transformation
     switch(transformMethod,
            cytofAsinh = {
@@ -215,7 +220,7 @@ cytof_exprsExtract <- function(fcsFile,
                exprs <- data[ ,marker_id, drop=FALSE]
            })
     
-    ## rescale data
+    ## rescale all data to same range
     if (!is.null(scaleTo)) {
         exprs <- apply(exprs, 2, function(x) scaleData(x, scaleTo))
     }

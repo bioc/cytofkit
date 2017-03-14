@@ -1,6 +1,22 @@
 \name{NEWS}
 \title{News for Package \pkg{cytofkit}}
 
+
+\section{Changes in version 1.6.2 (2017-03-08)}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item add default linear transformation to FSC and SSC channels
+      \item add support for PDF figure download on shinyAPP, update the side panel to be tab dependent
+      \item add new color palatte in heatmap (greenred and spectral) and level plot (spectral)
+      \item Add cluster filter in cluster plot on shinyAPP
+      \item Allow multiple annotation for same cluster (specify cluster_annotation name) on shinyAPP
+      \item Allow color selection for each cluster on shinyAPP
+      \item Allow modification of the marker name on shinyAPP
+    }
+  }
+}
+
+
 \section{Changes in version 1.6.1 (2016-10-27)}{
   \subsection{MODIFICATION}{
     \itemize{

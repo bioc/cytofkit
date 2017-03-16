@@ -358,7 +358,7 @@ cytof_clusterPlot <- function(data, xlab, ylab, cluster, sample, title = "cluste
 #' @param baseName The name as a prefix in the title of the heatmap.
 #' @param scaleMethod Method indicating if the values should be centered and scaled in either the row direction or the column direction, or none. The default is 'none'.
 #' @param dendrogram Control the dengrogram on row or column, selection includes 'both', 'row', 'column', 'none'.
-#' @param colPalette Using selected colour palette, includes 'bluered', 'greenred', 'spectral'.
+#' @param colPalette Using selected colour palette, includes 'bluered', 'greenred', 'spectral1' and 'spectral2'.
 #' @param cex_row_label Text size for row labels.
 #' @param cex_col_label Text size for column labels.
 #' @param key.par graphical parameters for the color key. 
@@ -441,7 +441,7 @@ cytof_heatmap <- function(data, baseName = "Cluster", scaleMethod = "none",
 #' @export
 #'
 #' @examples
-#' spectral(2)
+#' spectral1(2)
 spectral1 <- function(n){
     spectralPalette <- colorRampPalette(c("#5E4FA2", "#3288BD", "#66C2A5", "#ABDDA4",
                                           "#E6F598", "#FFFFBF", "#FEE08B", "#FDAE61",
@@ -457,7 +457,7 @@ spectral1 <- function(n){
 #' @export
 #'
 #' @examples
-#' spectral(2)
+#' spectral2(2)
 spectral2 <- function(n){
     spectralPalette <- colorRampPalette(rev(c("#7F0000","red","#FF7F00","yellow","white", 
                                               "cyan", "#007FFF", "blue","#00007F")))

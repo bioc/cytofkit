@@ -19,7 +19,7 @@ cytof_heatmap(data, baseName = "Cluster", scaleMethod = "none",
 
 \item{dendrogram}{Control the dengrogram on row or column, selection includes 'both', 'row', 'column', 'none'.}
 
-\item{colPalette}{Using selected colour palette, includes 'bluered', 'greenred', 'spectral'.}
+\item{colPalette}{Using selected colour palette, includes 'bluered', 'greenred', 'spectral1' and 'spectral2'.}
 
 \item{cex_row_label}{Text size for row labels.}
 

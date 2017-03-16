@@ -16,5 +16,5 @@ hex colour values
 Second Function for spectral color palette
 }
 \examples{
-spectral(2)
+spectral2(2)
 }

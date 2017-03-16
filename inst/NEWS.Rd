@@ -2,6 +2,15 @@
 \title{News for Package \pkg{cytofkit}}
 
 
+\section{Changes in version 1.6.3 (2017-03-16)}{
+  \subsection{MODIFICATION}{
+    \itemize{
+      \item debug the last updated version 1.6.2
+    }
+  }
+}
+
+
 \section{Changes in version 1.6.2 (2017-03-08)}{
   \subsection{NEW FEATURES}{
     \itemize{

@@ -1,11 +1,18 @@
 \name{NEWS}
 \title{News for Package \pkg{cytofkit}}
 
+\section{Changes in version 1.6.4 (2017-03-17)}{
+  \subsection{MODIFICATION}{
+    \itemize{
+      \item in the shiny server code change function call of c in do.call to base::c
+    }
+  }
+}
 
 \section{Changes in version 1.6.3 (2017-03-16)}{
   \subsection{MODIFICATION}{
     \itemize{
-      \item debug the last updated version 1.6.2
+      \item debug the FSC|SSC channel processing error
     }
   }
 }

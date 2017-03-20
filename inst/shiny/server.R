@@ -844,7 +844,7 @@ shinyServer(function(input, output, session) {
                 v$sampleInfo$cellSample <- factor(sampleGroupNames[sampleMatchID])
             }
             
-            cellID_number <- do.call(c, regmatches(v$sampleInfo$cellID,
+            cellID_number <- do.call(base::c, regmatches(v$sampleInfo$cellID,
                                                    gregexpr("_[0-9]*$", v$sampleInfo$cellID, perl=T)))
             
             ## update reactive object v$sampleInfo

@@ -1,6 +1,16 @@
 \name{NEWS}
 \title{News for Package \pkg{cytofkit}}
 
+
+\section{Changes in version 1.6.5 (2017-03-27)}{
+  \subsection{MODIFICATION}{
+    \itemize{
+      \item debug that FlowSOM_k doesn't work in cytofkit main function
+    }
+  }
+}
+
+
 \section{Changes in version 1.6.4 (2017-03-17)}{
   \subsection{MODIFICATION}{
     \itemize{

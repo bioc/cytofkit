@@ -3,7 +3,7 @@
 #' Take the the RData object file saved by cytofkit as input, automatically load the data and allow exploration of the analysis results with interactive control
 #'
 #'
-#' @param objFile Either the RData object file or data object, if missing, RData file need to be loaded on the ShinyAPP
+#' @param obj Either the RData object file or data object, if missing, RData file need to be loaded on the ShinyAPP
 #' 
 #' @import shiny
 #' @author Hao Chen

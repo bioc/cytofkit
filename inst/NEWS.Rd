@@ -1,6 +1,14 @@
 \name{NEWS}
 \title{News for Package \pkg{cytofkit}}
 
+\section{Changes in version 1.8.1 (2017-04-26)}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item fixed documentation warning for function cytofkitShinyAPP2
+      \item updated my maintainer email address
+    }
+  }
+}
 
 \section{Changes in version 1.6.6 (2017-04-11)}{
   \subsection{NEW FEATURES}{

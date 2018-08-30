@@ -16,8 +16,9 @@ output:
 To install **cytofkit** package, start R and run the following codes on R console:
 
 ```{r, eval=FALSE}
-source("https://bioconductor.org/biocLite.R")
-biocLite("cytofkit")
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("cytofkit")
 ```
 
 `Notes`: **cytofkit** GUI is dependent on XQuartz windowing system (X Windows) on Mac (OS X > 10.7). Install XQuartz from http://xquartz.macosforge.org.

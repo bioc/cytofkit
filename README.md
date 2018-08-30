@@ -44,8 +44,9 @@ Install the stable version from Bioconductor, use:
 
 ``` r
 ## try http:// if https:// URLs are not supported
-source("https://bioconductor.org/biocLite.R")
-biocLite("cytofkit")
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("cytofkit")
 ```
 
 Install this development version, use:
